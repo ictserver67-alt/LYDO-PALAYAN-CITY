@@ -701,37 +701,37 @@ export default function ScholarDashboard({ user }) {
             <div className="flex flex-col p-4 bg-white/5 border border-white/10 rounded-xl">
               <label className="input-label font-bold text-white">Letter to City Mayor *</label>
               <input type="file" accept=".pdf" onChange={e => handleFileChange(e, 'letterToMayor')} className="text-xs mt-2 text-white/70" required={!found} />
-              {existing.letter_to_mayor_url && <span className="text-[10px] text-green-400 mt-2">✓ Previously uploaded file exists</span>}
+              {app?.letter_to_mayor_url && <span className="text-[10px] text-green-400 mt-2">✓ Previously uploaded file exists</span>}
             </div>
 
             <div className="flex flex-col p-4 bg-white/5 border border-white/10 rounded-xl">
               <label className="input-label font-bold text-white">Student Valid ID *</label>
               <input type="file" accept=".pdf" onChange={e => handleFileChange(e, 'validId')} className="text-xs mt-2 text-white/70" required={!found} />
-              {existing.valid_id_url && <span className="text-[10px] text-green-400 mt-2">✓ Previously uploaded file exists</span>}
+              {app?.valid_id_url && <span className="text-[10px] text-green-400 mt-2">✓ Previously uploaded file exists</span>}
             </div>
 
             <div className="flex flex-col p-4 bg-white/5 border border-white/10 rounded-xl">
               <label className="input-label font-bold text-white">Certificate of Enrollment *</label>
               <input type="file" accept=".pdf" onChange={e => handleFileChange(e, 'enrollmentCert')} className="text-xs mt-2 text-white/70" required={!found} />
-              {existing.enrollment_cert_url && <span className="text-[10px] text-green-400 mt-2">✓ Previously uploaded file exists</span>}
+              {app?.enrollment_cert_url && <span className="text-[10px] text-green-400 mt-2">✓ Previously uploaded file exists</span>}
             </div>
 
             <div className="flex flex-col p-4 bg-white/5 border border-white/10 rounded-xl">
               <label className="input-label font-bold text-white">Latest Grade Transcript / Report Card *</label>
               <input type="file" accept=".pdf" onChange={e => handleFileChange(e, 'gradeTranscript')} className="text-xs mt-2 text-white/70" required={!found} />
-              {existing.grade_transcript_url && <span className="text-[10px] text-green-400 mt-2">✓ Previously uploaded file exists</span>}
+              {app?.grade_transcript_url && <span className="text-[10px] text-green-400 mt-2">✓ Previously uploaded file exists</span>}
             </div>
 
             <div className="flex flex-col p-4 bg-white/5 border border-white/10 rounded-xl">
               <label className="input-label font-bold text-white">Barangay Clearance *</label>
               <input type="file" accept=".pdf" onChange={e => handleFileChange(e, 'barangayClearance')} className="text-xs mt-2 text-white/70" required={!found} />
-              {existing.barangay_clearance_url && <span className="text-[10px] text-green-400 mt-2">✓ Previously uploaded file exists</span>}
+              {app?.barangay_clearance_url && <span className="text-[10px] text-green-400 mt-2">✓ Previously uploaded file exists</span>}
             </div>
 
             <div className="flex flex-col p-4 bg-white/5 border border-white/10 rounded-xl">
               <label className="input-label font-bold text-white">PWD / IP / Solo Parent ID (If applicable)</label>
               <input type="file" accept=".pdf" onChange={e => handleFileChange(e, 'specialId')} className="text-xs mt-2 text-white/70" />
-              {existing.special_id_url && <span className="text-[10px] text-green-400 mt-2">✓ Previously uploaded file exists</span>}
+              {app?.special_id_url && <span className="text-[10px] text-green-400 mt-2">✓ Previously uploaded file exists</span>}
             </div>
           </div>
         )}
