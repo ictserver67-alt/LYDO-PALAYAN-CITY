@@ -119,10 +119,11 @@ export default function Page() {
         fetchPendingDocs();
       } else if (activeTab === 'deadlines') {
         fetchDeadlines();
+      } else if (activeTab === 'concerns' && user.role === 'admin') {
+        fetchConcerns();
       } else if (activeTab === 'accounts' && user.role === 'admin') {
         fetchUsers();
         fetchAuditLogs();
-        fetchConcerns();
       }
     } else {
       if (activeTab === 'deadlines') {
@@ -988,6 +989,103 @@ export default function Page() {
           </div>
         )}
 
+        {/* TAB: CONCERNS MANAGER (ADMIN ONLY) */}
+        {activeTab === 'concerns' && isAdmin && (
+          <div className="flex flex-col gap-8 animate-in fade-in duration-300">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-white/10 pb-4">
+              <div>
+                <h1 className="text-2xl font-extrabold text-gold-gradient uppercase tracking-wider">Concerns Manager</h1>
+                <p className="text-xs text-white/50">Track, monitor, and resolve student and officer tickets directly in Supabase</p>
+              </div>
+              <button
+                onClick={fetchConcerns}
+                className="px-3 py-2.5 rounded-lg border border-gold/20 hover:bg-gold/10 text-gold text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer"
+                title="Refresh lists"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H18.2" />
+                </svg>
+                Refresh Data
+              </button>
+            </div>
+
+            {/* Reported Concerns Table */}
+            <div className="glass-panel rounded-xl p-6 border border-gold/15 flex flex-col gap-4">
+              <div className="overflow-x-auto w-full border border-white/5 rounded-lg">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-white/5 border-b border-white/10 text-gold/80 text-xs font-semibold uppercase tracking-wider">
+                      <th className="py-4 px-6">Date Reported</th>
+                      <th className="py-4 px-6">Reporter</th>
+                      <th className="py-4 px-6">Role</th>
+                      <th className="py-4 px-6">Barangay</th>
+                      <th className="py-4 px-6">Category</th>
+                      <th className="py-4 px-6">Description</th>
+                      <th className="py-4 px-6">Status</th>
+                      <th className="py-4 px-6 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5 text-sm text-white/80">
+                    {concernsList.length === 0 ? (
+                      <tr>
+                        <td colSpan="8" className="py-12 text-center text-white/40">
+                          <div className="flex flex-col items-center gap-2">
+                            <svg className="w-10 h-10 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>No reported concern tickets active.</span>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      concernsList.map((c) => (
+                        <tr key={c.id} className="hover:bg-white/5 transition-all">
+                          <td className="py-4 px-6 text-white/60 whitespace-nowrap">{new Date(c.timestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
+                          <td className="py-4 px-6 font-semibold text-white">{c.username}</td>
+                          <td className="py-4 px-6 uppercase text-xs text-gold font-bold">{c.role}</td>
+                          <td className="py-4 px-6 text-white/60">{c.barangay || 'N/A'}</td>
+                          <td className="py-4 px-6 text-white font-semibold">{c.category}</td>
+                          <td className="py-4 px-6 text-white/60 max-w-sm" title={c.description}>{c.description}</td>
+                          <td className="py-4 px-6">
+                            <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${
+                              c.status === 'Open' ? 'bg-red-500/10 border-red-500/30 text-red-400' :
+                              c.status === 'In Progress' ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-400' :
+                              'bg-green-500/10 border-green-500/30 text-green-400'
+                            }`}>
+                              {c.status}
+                            </span>
+                          </td>
+                          <td className="py-4 px-6 text-right">
+                            <div className="flex justify-end gap-2">
+                              {c.status !== 'Resolved' && (
+                                <button
+                                  onClick={() => handleUpdateConcernStatus(c.id, 'Resolved')}
+                                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold text-xs transition-all cursor-pointer shadow animate-all"
+                                >
+                                  Resolve
+                                </button>
+                              )}
+                              {c.status === 'Open' && (
+                                <button
+                                  onClick={() => handleUpdateConcernStatus(c.id, 'In Progress')}
+                                  className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded font-bold text-xs transition-all cursor-pointer shadow animate-all"
+                                >
+                                  In Progress
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* TAB 6: USER ACCOUNTS & AUDIT LOGS (ADMIN ONLY) */}
         {activeTab === 'accounts' && isAdmin && (
           <div className="flex flex-col gap-8 animate-in fade-in duration-300">
@@ -1128,76 +1226,6 @@ export default function Page() {
                     </table>
                   </div>
                 </div>
-              </div>
-            </div>
-
-            {/* Reported Concerns Block */}
-            <div className="glass-panel rounded-xl p-6 border border-gold/15 flex flex-col gap-4">
-              <div>
-                <h3 className="text-md font-bold text-gold-gradient">Reported Student & Officer Concerns</h3>
-                <p className="text-xs text-white/50">Manage concern tickets logged by users directly in Supabase</p>
-              </div>
-
-              <div className="overflow-x-auto w-full border border-white/5 rounded-lg max-h-[300px] overflow-y-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-white/5 border-b border-white/10 text-gold/80 text-[10px] font-semibold uppercase tracking-wider">
-                      <th className="py-3 px-6">Date</th>
-                      <th className="py-3 px-6">Reporter</th>
-                      <th className="py-3 px-6">Role</th>
-                      <th className="py-3 px-6">Barangay</th>
-                      <th className="py-3 px-6">Category</th>
-                      <th className="py-3 px-6">Description</th>
-                      <th className="py-3 px-6">Status</th>
-                      <th className="py-3 px-6 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5 text-xs text-white/70 font-medium">
-                    {concernsList.length === 0 ? (
-                      <tr>
-                        <td colSpan="8" className="py-8 text-center text-white/40">No concern tickets found.</td>
-                      </tr>
-                    ) : (
-                      concernsList.map((c) => (
-                        <tr key={c.id} className="hover:bg-white/5 transition-all">
-                          <td className="py-3 px-6 whitespace-nowrap">{new Date(c.timestamp).toLocaleDateString()}</td>
-                          <td className="py-3 px-6 font-semibold text-white">{c.username}</td>
-                          <td className="py-3 px-6 uppercase text-[10px] text-gold">{c.role}</td>
-                          <td className="py-3 px-6">{c.barangay}</td>
-                          <td className="py-3 px-6 font-semibold">{c.category}</td>
-                          <td className="py-3 px-6 text-white/60 truncate max-w-xs" title={c.description}>{c.description}</td>
-                          <td className="py-3 px-6">
-                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                              c.status === 'Open' ? 'bg-red-500/15 border border-red-500/30 text-red-400' :
-                              c.status === 'In Progress' ? 'bg-yellow-500/15 border border-yellow-500/30 text-yellow-400' :
-                              'bg-green-500/15 border border-green-500/30 text-green-400'
-                            }`}>
-                              {c.status}
-                            </span>
-                          </td>
-                          <td className="py-3 px-6 text-right flex justify-end gap-1.5">
-                            {c.status !== 'Resolved' && (
-                              <button
-                                onClick={() => handleUpdateConcernStatus(c.id, 'Resolved')}
-                                className="px-2 py-1 bg-green-600 hover:bg-green-500 text-white rounded text-[10px] font-bold transition-all cursor-pointer"
-                              >
-                                Resolve
-                              </button>
-                            )}
-                            {c.status === 'Open' && (
-                              <button
-                                onClick={() => handleUpdateConcernStatus(c.id, 'In Progress')}
-                                className="px-2 py-1 bg-yellow-600 hover:bg-yellow-500 text-white rounded text-[10px] font-bold transition-all cursor-pointer"
-                              >
-                                Progress
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
               </div>
             </div>
 
