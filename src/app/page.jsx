@@ -376,7 +376,7 @@ export default function Page() {
           username: newUsername,
           password: newPassword,
           role: newRole,
-          barangay: newRole === 'SK' ? newBarangay : null,
+          barangay: (newRole === 'SK' || newRole === 'scholar') ? newBarangay : null,
           displayName: newDisplayName
         })
       });
@@ -972,10 +972,11 @@ export default function Page() {
                         <option value="admin" className="bg-forest-dark text-white">System Admin</option>
                         <option value="SK" className="bg-forest-dark text-white">SK Officer</option>
                         <option value="LYDC" className="bg-forest-dark text-white">LYDC Center Officer</option>
+                        <option value="scholar" className="bg-forest-dark text-white">Scholar / Applicant</option>
                       </select>
                     </div>
 
-                    {newRole === 'SK' && (
+                    {(newRole === 'SK' || newRole === 'scholar') && (
                       <div className="flex flex-col">
                         <label className="input-label text-[11px]">Registered Barangay *</label>
                         <select
