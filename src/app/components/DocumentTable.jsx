@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function DocumentTable({ documents, title, onRefresh }) {
+export default function DocumentTable({ documents, title, onRefresh, isAdmin }) {
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
 
@@ -29,6 +29,24 @@ export default function DocumentTable({ documents, title, onRefresh }) {
     } catch (err) {
       console.error('Download failed, opening in new tab instead:', err);
       window.open(url, '_blank');
+    }
+  };
+
+  const handleDelete = async (fileId, name) => {
+    if (!confirm(`Are you sure you want to permanently delete document "${name}"?`)) return;
+    try {
+      const res = await fetch('/api/admin/deleteDocument', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileId })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to delete document.');
+
+      alert(data.message || '❌ Document deleted successfully.');
+      if (onRefresh) onRefresh();
+    } catch (err) {
+      alert(err.message);
     }
   };
 
@@ -151,6 +169,18 @@ export default function DocumentTable({ documents, title, onRefresh }) {
                       </svg>
                       Download
                     </button>
+                    {isAdmin && (
+                      <button
+                        onClick={() => handleDelete(doc.fileId, doc.name)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded border border-red-500/30 text-red-400 hover:bg-red-500/10 font-bold text-xs hover:shadow-md transition-all cursor-pointer"
+                        title="Delete document permanently"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Delete
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))

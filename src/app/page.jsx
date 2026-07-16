@@ -831,6 +831,7 @@ export default function Page() {
                   documents={documents}
                   title={`Folder: ${selectedEntity}`}
                   onRefresh={() => fetchDocuments(selectedEntity)}
+                  isAdmin={isAdmin}
                 />
               </div>
             </div>
