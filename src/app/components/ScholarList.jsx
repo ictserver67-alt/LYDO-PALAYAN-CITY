@@ -257,12 +257,14 @@ export default function ScholarList({ user }) {
                           >
                             Edit
                           </button>
-                          <button
-                            onClick={() => handleDeleteScholar(app.id, app.student_full_name)}
-                            className="px-3 py-1.5 rounded border border-red-500/30 text-red-400 hover:bg-red-500/10 font-bold text-xs hover:shadow-md transition-all cursor-pointer"
-                          >
-                            Delete
-                          </button>
+                          {user?.role === 'admin' && (
+                            <button
+                              onClick={() => handleDeleteScholar(app.id, app.student_full_name)}
+                              className="px-3 py-1.5 rounded border border-red-500/30 text-red-400 hover:bg-red-500/10 font-bold text-xs hover:shadow-md transition-all cursor-pointer"
+                            >
+                              Delete
+                            </button>
+                          )}
                         </td>
                       )}
                     </tr>
