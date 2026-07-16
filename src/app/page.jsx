@@ -499,53 +499,44 @@ export default function Page() {
   // GATEWAY & LOGIN RENDER
   if (!user) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-forest-gradient p-4 select-none relative font-sans">
+      <main className="min-h-screen flex flex-col items-center justify-center bg-forest-gradient p-4 select-none relative font-sans">
         {/* Glow Effects */}
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gold/10 rounded-full blur-[120px] pointer-events-none" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary-light/20 rounded-full blur-[150px] pointer-events-none" />
 
+        {/* Main City Header with Palayan Seal (Good Placement) */}
+        <div className="flex flex-col items-center gap-2 mb-6 text-center animate-in fade-in slide-in-from-top-4 duration-500">
+          <img 
+            src="/logo_palayan.png" 
+            alt="Palayan City Seal" 
+            className="w-20 h-20 drop-shadow-[0_0_12px_rgba(255,255,255,0.15)] object-contain" 
+          />
+          <div>
+            <h1 className="text-xl font-black text-gold-gradient tracking-tight uppercase">Palayan City Youth Portal</h1>
+            <p className="text-[10px] text-white/50 uppercase tracking-widest font-semibold mt-0.5">Republic of the Philippines</p>
+          </div>
+        </div>
+
         {/* Portal Gateway Selection */}
-        <div className="w-full max-w-md glass-panel border border-gold/25 rounded-2xl overflow-hidden shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+        <div className="w-full max-w-md glass-panel border border-gold/25 rounded-2xl overflow-hidden shadow-2xl relative animate-in fade-in zoom-in-95 duration-300">
           {/* Form Header */}
-          <div className="px-6 pt-12 pb-6 border-b border-white/10 text-center bg-white/5">
-            <div className="w-20 h-20 mx-auto mb-4 drop-shadow-[0_0_15px_rgba(245,176,65,0.4)] animate-in fade-in zoom-in duration-300">
-              <svg className="w-full h-full text-gold" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                {/* Outer decorative ring */}
-                <circle cx="50" cy="50" r="46" stroke="url(#goldGrad)" strokeWidth="2.5" strokeDasharray="3 2" />
-                <circle cx="50" cy="50" r="41" stroke="url(#goldGrad)" strokeWidth="1" opacity="0.6" />
-                
-                {/* Central Emblem - Shield representing strength & protection */}
-                <path d="M50 20 L74 34 V59 C74 72 50 81 50 81 C50 81 26 72 26 59 V34 Z" fill="url(#forestGrad)" stroke="url(#goldGrad)" strokeWidth="2" />
-                
-                {/* Rice grains representing Palayan City (Palay motif) */}
-                <path d="M42 55 C46 54 48 50 50 46 C52 50 54 54 58 55" stroke="url(#goldGrad)" strokeWidth="2" strokeLinecap="round" />
-                <path d="M39 61 C44 60 48 56 50 51 C52 56 56 60 61 61" stroke="url(#goldGrad)" strokeWidth="2" strokeLinecap="round" />
-                <path d="M36 67 C42 66 48 62 50 56 C52 62 58 66 64 67" stroke="url(#goldGrad)" strokeWidth="2" strokeLinecap="round" />
-                
-                {/* Rising sun rays (motivating youth/future) */}
-                <circle cx="50" cy="38" r="7" fill="url(#goldGrad)" />
-                <line x1="50" y1="28" x2="50" y2="25" stroke="url(#goldGrad)" strokeWidth="1.5" strokeLinecap="round" />
-                <line x1="40" y1="32" x2="38" y2="30" stroke="url(#goldGrad)" strokeWidth="1.5" strokeLinecap="round" />
-                <line x1="60" y1="32" x2="62" y2="30" stroke="url(#goldGrad)" strokeWidth="1.5" strokeLinecap="round" />
-                <line x1="37" y1="42" x2="34" y2="42" stroke="url(#goldGrad)" strokeWidth="1.5" strokeLinecap="round" />
-                <line x1="63" y1="42" x2="66" y2="42" stroke="url(#goldGrad)" strokeWidth="1.5" strokeLinecap="round" />
-                
-                {/* Definitions for Premium Gradients */}
-                <defs>
-                  <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#FFE07D" />
-                    <stop offset="60%" stopColor="#F5B041" />
-                    <stop offset="100%" stopColor="#D4AC0D" />
-                  </linearGradient>
-                  <linearGradient id="forestGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#1E4D2B" />
-                    <stop offset="100%" stopColor="#0B2914" />
-                  </linearGradient>
-                </defs>
-              </svg>
+          <div className="px-6 pt-10 pb-6 border-b border-white/10 text-center bg-white/5">
+            {/* SK and LYDC Logos side-by-side */}
+            <div className="flex items-center justify-center gap-6 mb-4">
+              <img 
+                src="/logo_sk.png" 
+                alt="Sangguniang Kabataan Logo" 
+                className="w-14 h-14 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.08)]" 
+              />
+              <div className="h-8 w-[1px] bg-white/10" />
+              <img 
+                src="/logo_lydo.png" 
+                alt="LYDO Logo" 
+                className="w-14 h-14 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.08)]" 
+              />
             </div>
-            <h2 className="text-2xl font-bold text-gold-gradient capitalize">Portal Sign In</h2>
-            <p className="text-xs text-white/50 mt-1">Please enter your portal access credentials</p>
+            <h2 className="text-xl font-bold text-gold-gradient capitalize">Portal Sign In</h2>
+            <p className="text-xs text-white/40 mt-1">Please enter your portal access credentials</p>
           </div>
 
           {/* Login Form */}
@@ -601,6 +592,20 @@ export default function Page() {
               </button>
             </div>
           </form>
+        </div>
+
+        {/* Footer with All Logos & Credits */}
+        <div className="flex flex-col items-center gap-3 mt-8 w-full max-w-md bg-white/[0.02] border border-white/5 p-4 rounded-2xl backdrop-blur-sm animate-in fade-in duration-500">
+          <div className="flex items-center justify-center gap-4">
+            <img src="/logo_palayan.png" alt="Palayan City" className="w-7 h-7 object-contain opacity-70 hover:opacity-100 transition-all" />
+            <img src="/logo_lydo.png" alt="LYDO" className="w-7 h-7 object-contain opacity-70 hover:opacity-100 transition-all" />
+            <img src="/logo_sk.png" alt="SK" className="w-7 h-7 object-contain opacity-70 hover:opacity-100 transition-all" />
+            <div className="w-[1px] h-5 bg-white/10" />
+            <img src="/logo_ict.png" alt="ICT Division" className="w-7 h-7 object-contain opacity-70 hover:opacity-100 transition-all" />
+          </div>
+          <p className="text-[10px] text-white/40 text-center tracking-wide">
+            Designed & Developed by the <span className="font-bold text-white/60">ICT Division • LGU Palayan City</span>
+          </p>
         </div>
 
         {/* Officer registration modal */}
