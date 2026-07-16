@@ -110,6 +110,6 @@ export async function POST(req) {
 
   } catch (err) {
     console.error('processForm API error:', err);
-    return NextResponse.json({ error: 'Failed to process document upload.' }, { status: 500 });
+    return NextResponse.json({ error: `Failed to process document upload: ${err.message}` }, { status: 500 });
   }
 }
