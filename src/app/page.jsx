@@ -744,15 +744,28 @@ export default function Page() {
                       </>
                     )}
 
-                    <div className="flex flex-col">
-                      <label className="input-label text-[11px]">Attach File (PDF Only)</label>
-                      <input
-                        type="file"
-                        accept=".pdf"
-                        required
-                        onChange={e => setUploadFile(e.target.files[0])}
-                        className="text-xs text-white/70"
-                      />
+                    <div className="flex flex-col gap-1.5">
+                      <span className="input-label text-[11px]">Attach File (PDF Only)</span>
+                      <label className="border border-dashed border-gold/45 hover:border-gold hover:bg-white/[0.03] transition-all rounded-lg p-4 flex flex-col items-center justify-center gap-2 cursor-pointer text-center relative overflow-hidden group">
+                        <input
+                          type="file"
+                          accept=".pdf"
+                          required={!uploadFile}
+                          onChange={e => setUploadFile(e.target.files[0])}
+                          className="hidden"
+                        />
+                        <svg className="w-7 h-7 text-gold/60 group-hover:text-gold group-hover:scale-105 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <div className="flex flex-col items-center">
+                          <span className="text-[11px] font-bold text-gold-gradient">
+                            {uploadFile ? 'Change PDF File' : 'Choose PDF File'}
+                          </span>
+                          <span className="text-[9px] text-white/50 mt-0.5 truncate max-w-[220px]">
+                            {uploadFile ? uploadFile.name : 'Click to select (Max 15MB)'}
+                          </span>
+                        </div>
+                      </label>
                     </div>
 
                     <button

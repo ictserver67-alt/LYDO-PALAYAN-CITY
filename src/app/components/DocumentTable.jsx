@@ -14,6 +14,24 @@ export default function DocumentTable({ documents, title, onRefresh }) {
   // Extract unique categories
   const categories = ['All', ...new Set((documents || []).map(d => d.category))];
 
+  const handleDownload = async (url, filename) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error('Download failed, opening in new tab instead:', err);
+      window.open(url, '_blank');
+    }
+  };
+
   return (
     <div className="glass-panel rounded-xl p-6 border border-gold/15 w-full flex flex-col gap-4">
       {/* Table Header Controls */}
@@ -109,18 +127,30 @@ export default function DocumentTable({ documents, title, onRefresh }) {
                       minute: '2-digit'
                     })}
                   </td>
-                  <td className="py-4 px-6 text-right">
+                  <td className="py-4 px-6 text-right flex justify-end gap-2">
                     <a
                       href={doc.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded bg-gold-gradient text-forest-dark font-bold text-xs hover:shadow-md transition-all glow-btn cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded border border-gold/40 hover:bg-gold/10 text-gold font-bold text-xs hover:shadow-sm transition-all cursor-pointer"
+                      title="Open in new tab"
                     >
-                      View Link
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
+                      View
                     </a>
+                    <button
+                      onClick={() => handleDownload(doc.url, doc.name)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-gold-gradient text-forest-dark font-extrabold text-xs hover:shadow-md transition-all glow-btn cursor-pointer"
+                      title="Download file"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                      </svg>
+                      Download
+                    </button>
                   </td>
                 </tr>
               ))

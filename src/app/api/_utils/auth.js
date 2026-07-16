@@ -92,8 +92,9 @@ export async function uploadFileToDrive({ base64Data, fileName, mimeType, folder
 
     // Virtual path prefix (e.g. folderId/fileName)
     const filePath = folderId ? `${folderId}/${fileName}` : fileName;
+    const escapedPath = filePath.split('/').map(segment => encodeURIComponent(segment)).join('/');
 
-    const uploadRes = await fetch(`${supabaseUrl}/storage/v1/object/lydo-documents/${filePath}`, {
+    const uploadRes = await fetch(`${supabaseUrl}/storage/v1/object/lydo-documents/${escapedPath}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${serviceKey}`,
@@ -108,7 +109,7 @@ export async function uploadFileToDrive({ base64Data, fileName, mimeType, folder
       throw new Error(`Supabase Storage upload failed: ${errText}`);
     }
 
-    const publicUrl = `${supabaseUrl}/storage/v1/object/public/lydo-documents/${filePath}`;
+    const publicUrl = `${supabaseUrl}/storage/v1/object/public/lydo-documents/${escapedPath}`;
     return {
       fileId: filePath, // use virtual filePath as unique ID
       url: publicUrl
