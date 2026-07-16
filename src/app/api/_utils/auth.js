@@ -208,10 +208,10 @@ export async function moveFileInDrive(fileId, targetFolderId) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from_bucket: 'lydo-documents',
-        to_bucket: 'lydo-documents',
-        source_key: fileId,
-        destination_key: newPath
+        fromBucket: 'lydo-documents',
+        toBucket: 'lydo-documents',
+        sourceKey: fileId,
+        destinationKey: newPath
       })
     });
 
@@ -222,7 +222,9 @@ export async function moveFileInDrive(fileId, targetFolderId) {
 
     // 2. Delete old path
     await deleteFileFromDrive(fileId);
-    return;
+
+    const publicUrl = `${supabaseUrl}/storage/v1/object/public/lydo-documents/${encodeURIComponent(newPath)}`;
+    return { fileId: newPath, url: publicUrl };
   }
 
   // Google Drive move

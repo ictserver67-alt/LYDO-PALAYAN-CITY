@@ -36,11 +36,18 @@ export async function POST(req) {
       targetFolderId = await getOrCreateSubfolder(doc.sub_category, lydcParentId);
     }
 
-    // Move file in Google Drive
-    await moveFileInDrive(fileId, targetFolderId);
+    // Move file in Google Drive/Supabase
+    const moveResult = await moveFileInDrive(fileId, targetFolderId);
 
-    // Update status in database
-    await query("UPDATE documents SET status = 'Approved' WHERE file_id = $1", [fileId]);
+    // Update status and paths in database
+    if (moveResult && moveResult.fileId && moveResult.url) {
+      await query(
+        "UPDATE documents SET status = 'Approved', file_id = $1, file_url = $2 WHERE file_id = $3",
+        [moveResult.fileId, moveResult.url, fileId]
+      );
+    } else {
+      await query("UPDATE documents SET status = 'Approved' WHERE file_id = $1", [fileId]);
+    }
 
     // Add audit trail log
     await query(
