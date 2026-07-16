@@ -44,8 +44,8 @@ export async function POST(req) {
     let targetFolderId;
 
     if (isPending) {
-      // Goes to [PENDING_APPROVALS] folder
-      targetFolderId = await getOrCreateSubfolder('[PENDING_APPROVALS]', ROOT_FOLDER_ID);
+      // Goes to PENDING_APPROVALS folder
+      targetFolderId = await getOrCreateSubfolder('PENDING_APPROVALS', ROOT_FOLDER_ID);
     } else {
       // Goes directly to destination
       if (userType === 'SK') {
