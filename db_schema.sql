@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
     role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'SK', 'LYDC', 'scholar', 'encoder')),
     barangay VARCHAR(100),
     display_name VARCHAR(100) NOT NULL,
+    is_approved BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 

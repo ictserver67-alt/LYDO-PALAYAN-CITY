@@ -21,6 +21,11 @@ export async function POST(req) {
 
     const user = res.rows[0];
 
+    // Check if account is approved by admin
+    if (user.is_approved === false) {
+      return NextResponse.json({ error: 'ACCESS_DENIED: Your account is pending administrator approval.' }, { status: 403 });
+    }
+
     // Check password
     const match = await bcrypt.compare(password, user.password_hash);
     if (!match) {

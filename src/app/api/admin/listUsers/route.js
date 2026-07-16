@@ -10,7 +10,7 @@ export async function GET(req) {
     }
 
     const res = await query(
-      `SELECT username, role, barangay, display_name as "displayName", created_at as "createdAt"
+      `SELECT username, role, barangay, display_name as "displayName", is_approved as "isApproved", created_at as "createdAt"
        FROM users 
        ORDER BY created_at DESC`
     );

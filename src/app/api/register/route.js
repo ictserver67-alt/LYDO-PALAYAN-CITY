@@ -34,20 +34,20 @@ export async function POST(req) {
     // Hash password
     const passwordHash = await bcrypt.hash(password, 10);
 
-    // Insert user into DB
+    // Insert user into DB as unapproved
     await query(
-      `INSERT INTO users (username, password_hash, role, barangay, display_name)
-       VALUES ($1, $2, $3, $4, $5)`,
-      [cleanedUsername, passwordHash, role, role === 'SK' ? barangay : null, displayName]
+      `INSERT INTO users (username, password_hash, role, barangay, display_name, is_approved)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [cleanedUsername, passwordHash, role, role === 'SK' ? barangay : null, displayName, false]
     );
 
     // Add audit log
     await query(
       `INSERT INTO audit_logs (actor, action, details) VALUES ($1, $2, $3)`,
-      [cleanedUsername, 'USER_REGISTER', `Officer self-registered: ${cleanedUsername} as ${role}`]
+      [cleanedUsername, 'USER_REGISTER', `Officer self-registered (Pending Approval): ${cleanedUsername} as ${role}`]
     );
 
-    return NextResponse.json({ success: true, message: 'Registration successful! You can now log in.' });
+    return NextResponse.json({ success: true, message: 'Registration successful! Your account is pending administrator approval before you can log in.' });
   } catch (err) {
     console.error('Registration API error:', err);
     return NextResponse.json({ error: 'Failed to complete registration.' }, { status: 500 });

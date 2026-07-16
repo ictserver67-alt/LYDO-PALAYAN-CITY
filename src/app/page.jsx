@@ -460,6 +460,23 @@ export default function Page() {
     }
   };
 
+  const handleApproveUser = async (targetUsername) => {
+    try {
+      const res = await fetch('/api/admin/approveUser', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: targetUsername })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Approval failed.');
+
+      alert(data.message);
+      fetchUsers();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   const handleConcernSubmit = async (e) => {
     e.preventDefault();
     setConcernMsg({ text: '', isError: false });
@@ -1207,6 +1224,7 @@ export default function Page() {
                           <th className="py-4 px-6">Display Name / User</th>
                           <th className="py-4 px-6">Role Scope</th>
                           <th className="py-4 px-6">Registered Center/Barangay</th>
+                          <th className="py-4 px-6">Status</th>
                           <th className="py-4 px-6 text-right">Actions</th>
                         </tr>
                       </thead>
@@ -1219,15 +1237,36 @@ export default function Page() {
                             </td>
                             <td className="py-4 px-6 font-semibold uppercase text-xs text-gold">{u.role}</td>
                             <td className="py-4 px-6 text-white/60">{u.barangay || 'All Centers / System'}</td>
+                            <td className="py-4 px-6">
+                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold border uppercase tracking-wider ${
+                                u.isApproved !== false 
+                                  ? 'bg-green-500/10 border-green-500/20 text-green-400' 
+                                  : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400'
+                              }`}>
+                                {u.isApproved !== false ? 'Approved' : 'Pending'}
+                              </span>
+                            </td>
                             <td className="py-4 px-6 text-right">
-                              <button
-                                onClick={() => handleDeleteAccount(u.username)}
-                                disabled={u.username === user.username}
-                                className="p-2 rounded bg-red-500/10 border border-red-500/25 hover:bg-red-600 hover:text-white text-red-400 transition-all cursor-pointer disabled:opacity-20 disabled:pointer-events-none"
-                                title="Remove User Account"
-                              >
-                                <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                              </button>
+                              <div className="flex justify-end items-center gap-2">
+                                {u.isApproved === false && (
+                                  <button
+                                    onClick={() => handleApproveUser(u.username)}
+                                    className="px-2.5 py-1 bg-green-600 hover:bg-green-500 text-white rounded font-bold text-xs transition-all cursor-pointer shadow flex items-center gap-1 shrink-0"
+                                    title="Approve User Account"
+                                  >
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
+                                    Approve
+                                  </button>
+                                )}
+                                <button
+                                  onClick={() => handleDeleteAccount(u.username)}
+                                  disabled={u.username === user.username}
+                                  className="p-1.5 rounded bg-red-500/10 border border-red-500/25 hover:bg-red-600 hover:text-white text-red-400 transition-all cursor-pointer disabled:opacity-20 disabled:pointer-events-none"
+                                  title="Remove User Account"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))}
