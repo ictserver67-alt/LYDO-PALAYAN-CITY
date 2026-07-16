@@ -97,8 +97,25 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout }) {
       <div className="flex flex-col gap-8">
         {/* Brand Header */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gold-gradient flex items-center justify-center font-bold text-forest-dark text-lg shadow-md border border-gold/30">
-            LY
+          <div className="w-10 h-10 drop-shadow-[0_0_10px_rgba(245,176,65,0.3)]">
+            <svg className="w-full h-full text-gold" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="50" cy="50" r="46" stroke="url(#goldGradSidebar)" strokeWidth="2.5" strokeDasharray="3 2" />
+              <path d="M50 20 L74 34 V59 C74 72 50 81 50 81 C50 81 26 72 26 59 V34 Z" fill="url(#forestGradSidebar)" stroke="url(#goldGradSidebar)" strokeWidth="2" />
+              <path d="M42 55 C46 54 48 50 50 46 C52 50 54 54 58 55" stroke="url(#goldGradSidebar)" strokeWidth="2" strokeLinecap="round" />
+              <path d="M39 61 C44 60 48 56 50 51 C52 56 56 60 61 61" stroke="url(#goldGradSidebar)" strokeWidth="2" strokeLinecap="round" />
+              <circle cx="50" cy="38" r="7" fill="url(#goldGradSidebar)" />
+              <defs>
+                <linearGradient id="goldGradSidebar" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#FFE07D" />
+                  <stop offset="60%" stopColor="#F5B041" />
+                  <stop offset="100%" stopColor="#D4AC0D" />
+                </linearGradient>
+                <linearGradient id="forestGradSidebar" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#1E4D2B" />
+                  <stop offset="100%" stopColor="#0B2914" />
+                </linearGradient>
+              </defs>
+            </svg>
           </div>
           <div>
             <h1 className="font-bold text-gold-gradient leading-tight text-lg">PALAYAN CITY</h1>
