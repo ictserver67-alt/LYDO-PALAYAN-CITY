@@ -105,6 +105,11 @@ export async function POST(req) {
 
   } catch (err) {
     console.error('processForm API error:', err);
-    return NextResponse.json({ error: `Failed to process document upload: ${err.message}` }, { status: 500 });
+    let errMsg = err.message || '';
+    if (err.code === '23505' || errMsg.includes('documents_file_id_key')) {
+      errMsg = `A file named "${fileName}" already exists in this folder or is awaiting approval in the verification queue. Please rename your file and try uploading again.`;
+      return NextResponse.json({ error: errMsg }, { status: 409 }); // 409 Conflict
+    }
+    return NextResponse.json({ error: `Failed to process document upload: ${errMsg}` }, { status: 500 });
   }
 }
