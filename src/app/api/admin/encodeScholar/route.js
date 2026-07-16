@@ -5,9 +5,9 @@ import { query } from '../../_utils/db';
 export async function POST(req) {
   try {
     const session = getSessionFromRequest(req);
-    // Only encoders can encode scholars
-    if (!session || session.role !== 'encoder') {
-      return NextResponse.json({ error: 'ACCESS_DENIED: Access restricted to encoders only.' }, { status: 403 });
+    // Only encoders and admins can encode scholars
+    if (!session || (session.role !== 'encoder' && session.role !== 'admin')) {
+      return NextResponse.json({ error: 'ACCESS_DENIED: Access restricted to encoders and admins only.' }, { status: 403 });
     }
 
     const data = await req.json();

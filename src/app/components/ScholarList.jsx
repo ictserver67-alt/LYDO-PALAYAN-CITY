@@ -88,13 +88,13 @@ export default function ScholarList({ user }) {
         <div>
           <h2 className="text-xl font-bold text-gold-gradient">Scholar List & Directory</h2>
           <p className="text-xs text-white/50 mt-1">
-            {user?.role === 'encoder' 
+            {(user?.role === 'encoder' || user?.role === 'admin') 
               ? 'Manage scholar profiles, encode physical applications, and edit details' 
               : 'Browse and view the registered scholar profiles and directory'}
           </p>
         </div>
 
-        {user?.role === 'encoder' && (
+        {(user?.role === 'encoder' || user?.role === 'admin') && (
           <button 
             onClick={handleOpenEncode}
             className="px-5 py-3 bg-gold-gradient text-forest-dark font-black tracking-wider uppercase text-xs rounded-lg flex items-center gap-2 hover:shadow-lg transition-all cursor-pointer glow-btn shrink-0"
@@ -196,7 +196,7 @@ export default function ScholarList({ user }) {
                   <th className="py-4 px-6">School Details</th>
                   <th className="py-4 px-6">Circumstances</th>
                   <th className="py-4 px-6">Status</th>
-                  {user?.role === 'encoder' && <th className="py-4 px-6 text-right">Actions</th>}
+                  {(user?.role === 'encoder' || user?.role === 'admin') && <th className="py-4 px-6 text-right">Actions</th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5 text-sm text-white/80">
@@ -249,7 +249,7 @@ export default function ScholarList({ user }) {
                           {app.status === 'Pending' ? 'For Review' : (app.status === 'Approved' ? 'Approved' : 'Disapproved')}
                         </span>
                       </td>
-                      {user?.role === 'encoder' && (
+                      {(user?.role === 'encoder' || user?.role === 'admin') && (
                         <td className="py-4 px-6 text-right flex justify-end gap-2">
                           <button
                             onClick={() => handleOpenEdit(app)}
