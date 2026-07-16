@@ -348,12 +348,14 @@ export default function Page() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fileId })
       });
-      if (res.ok) {
-        fetchPendingDocs();
-        fetchAnalytics();
-      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Approve failed.');
+
+      alert(data.message || '✅ Document approved successfully.');
+      fetchPendingDocs();
+      fetchAnalytics();
     } catch (err) {
-      console.error('Approve failed:', err);
+      alert(err.message);
     }
   };
 
@@ -365,12 +367,14 @@ export default function Page() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fileId })
       });
-      if (res.ok) {
-        fetchPendingDocs();
-        fetchAnalytics();
-      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Reject failed.');
+
+      alert(data.message || '❌ Document rejected and deleted.');
+      fetchPendingDocs();
+      fetchAnalytics();
     } catch (err) {
-      console.error('Reject failed:', err);
+      alert(err.message);
     }
   };
 
