@@ -58,10 +58,21 @@ export async function POST(req) {
       }
     }
 
-    // 5. Upload file to Google Drive
+    let finalFileName = fileName;
+    let targetPath = `${targetFolderId}/${finalFileName}`;
+    const dupCheck = await query('SELECT file_id FROM documents WHERE file_id = $1', [targetPath]);
+    if (dupCheck.rows.length > 0) {
+      const dotIndex = fileName.lastIndexOf('.');
+      const base = dotIndex !== -1 ? fileName.substring(0, dotIndex) : fileName;
+      const ext = dotIndex !== -1 ? fileName.substring(dotIndex) : '';
+      const uniqueSuffix = `_${Date.now().toString().slice(-6)}`;
+      finalFileName = `${base}${uniqueSuffix}${ext}`;
+    }
+
+    // 5. Upload file to Google Drive/Supabase
     const driveUpload = await uploadFileToDrive({
       base64Data: fileData,
-      fileName: fileName,
+      fileName: finalFileName,
       mimeType: mimeType,
       folderId: targetFolderId
     });
@@ -76,7 +87,7 @@ export async function POST(req) {
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
       [
         driveUpload.fileId,
-        fileName,
+        finalFileName,
         driveUpload.url,
         category || 'General',
         subCategory,
