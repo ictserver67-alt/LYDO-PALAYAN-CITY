@@ -62,6 +62,6 @@ export async function POST(req) {
     return NextResponse.json({ success: true, message: `✅ Document "${doc.file_name}" approved successfully.` });
   } catch (err) {
     console.error('approveDocument API error:', err);
-    return NextResponse.json({ error: 'Failed to approve document.' }, { status: 500 });
+    return NextResponse.json({ error: `Failed to approve document: ${err.message}` }, { status: 500 });
   }
 }

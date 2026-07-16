@@ -47,6 +47,6 @@ export async function POST(req) {
     return NextResponse.json({ success: true, message: `❌ Document "${doc.file_name}" has been rejected and deleted.` });
   } catch (err) {
     console.error('rejectDocument API error:', err);
-    return NextResponse.json({ error: 'Failed to reject document.' }, { status: 500 });
+    return NextResponse.json({ error: `Failed to reject document: ${err.message}` }, { status: 500 });
   }
 }
