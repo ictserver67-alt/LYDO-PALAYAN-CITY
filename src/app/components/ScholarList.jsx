@@ -61,22 +61,48 @@ export default function ScholarList({ user }) {
     fetchApplications();
   };
 
+  const handleDeleteScholar = async (id, name) => {
+    if (!confirm(`Are you sure you want to delete the scholar application of ${name}?`)) return;
+    try {
+      const res = await fetch('/api/admin/deleteScholar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+      if (res.ok) {
+        fetchApplications();
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Failed to delete scholar.');
+      }
+    } catch (err) {
+      console.error('Delete scholar error:', err);
+      alert('An error occurred while deleting the record.');
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6 w-full font-sans">
       {/* Header & Main Actions */}
       <div className="glass-panel rounded-xl p-6 border border-gold/15 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-gold-gradient">Scholar List & Directory</h2>
-          <p className="text-xs text-white/50 mt-1">Manage scholar profiles, encode physical applications, and edit details</p>
+          <p className="text-xs text-white/50 mt-1">
+            {user?.role === 'encoder' 
+              ? 'Manage scholar profiles, encode physical applications, and edit details' 
+              : 'Browse and view the registered scholar profiles and directory'}
+          </p>
         </div>
 
-        <button 
-          onClick={handleOpenEncode}
-          className="px-5 py-3 bg-gold-gradient text-forest-dark font-black tracking-wider uppercase text-xs rounded-lg flex items-center gap-2 hover:shadow-lg transition-all cursor-pointer glow-btn shrink-0"
-        >
-          <svg className="w-4 h-4 text-forest-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" /></svg>
-          Encode New Scholar
-        </button>
+        {user?.role === 'encoder' && (
+          <button 
+            onClick={handleOpenEncode}
+            className="px-5 py-3 bg-gold-gradient text-forest-dark font-black tracking-wider uppercase text-xs rounded-lg flex items-center gap-2 hover:shadow-lg transition-all cursor-pointer glow-btn shrink-0"
+          >
+            <svg className="w-4 h-4 text-forest-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" /></svg>
+            Encode New Scholar
+          </button>
+        )}
       </div>
 
       {/* Generated Application No Notification */}
@@ -170,7 +196,7 @@ export default function ScholarList({ user }) {
                   <th className="py-4 px-6">School Details</th>
                   <th className="py-4 px-6">Circumstances</th>
                   <th className="py-4 px-6">Status</th>
-                  <th className="py-4 px-6 text-right">Actions</th>
+                  {user?.role === 'encoder' && <th className="py-4 px-6 text-right">Actions</th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5 text-sm text-white/80">
@@ -223,14 +249,22 @@ export default function ScholarList({ user }) {
                           {app.status === 'Pending' ? 'For Review' : (app.status === 'Approved' ? 'Approved' : 'Disapproved')}
                         </span>
                       </td>
-                      <td className="py-4 px-6 text-right">
-                        <button
-                          onClick={() => handleOpenEdit(app)}
-                          className="px-3 py-1.5 rounded border border-gold/40 text-gold hover:bg-gold/10 font-bold text-xs hover:shadow-md transition-all cursor-pointer"
-                        >
-                          Edit
-                        </button>
-                      </td>
+                      {user?.role === 'encoder' && (
+                        <td className="py-4 px-6 text-right flex justify-end gap-2">
+                          <button
+                            onClick={() => handleOpenEdit(app)}
+                            className="px-3 py-1.5 rounded border border-gold/45 text-gold hover:bg-gold/10 font-bold text-xs hover:shadow-md transition-all cursor-pointer"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteScholar(app.id, app.student_full_name)}
+                            className="px-3 py-1.5 rounded border border-red-500/30 text-red-400 hover:bg-red-500/10 font-bold text-xs hover:shadow-md transition-all cursor-pointer"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      )}
                     </tr>
                   );
                 })}
