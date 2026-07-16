@@ -208,8 +208,7 @@ export async function moveFileInDrive(fileId, targetFolderId) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        fromBucket: 'lydo-documents',
-        toBucket: 'lydo-documents',
+        bucketId: 'lydo-documents',
         sourceKey: fileId,
         destinationKey: newPath
       })
