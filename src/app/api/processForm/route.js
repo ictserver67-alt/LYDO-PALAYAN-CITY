@@ -67,15 +67,13 @@ export async function POST(req) {
     });
 
     const status = isPending ? 'Pending' : 'Approved';
-    const finalDestFunc = (userType === 'SK' || userType === 'LYDO') ? 'getOrCreateSubfolder_' : 'getOrCreateLYDCCenterFolder_';
-    const finalDestArg = (userType === 'LYDO') ? 'LYDO' : subCategory;
 
     // 6. Save in Supabase documents table
     await query(
       `INSERT INTO documents (
         file_id, file_name, file_url, category, sub_category, 
-        user_type, uploaded_by, is_pending, status, final_dest_func, final_dest_arg
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+        user_type, uploaded_by, status
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
       [
         driveUpload.fileId,
         fileName,
@@ -84,10 +82,7 @@ export async function POST(req) {
         subCategory,
         userType,
         session.username,
-        isPending,
-        status,
-        finalDestFunc,
-        finalDestArg
+        status
       ]
     );
 
