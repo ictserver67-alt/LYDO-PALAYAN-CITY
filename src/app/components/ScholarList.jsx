@@ -103,7 +103,7 @@ export default function ScholarList({ user }) {
     if (base.includes('-projects.vercel.app') || base.includes('localhost') || base.includes('127.0.0.1')) {
       base = 'https://lydo-portal-flax.vercel.app';
     }
-    return `${base}/#register=scholar`;
+    return `${base}/#apply=scholar`;
   };
 
   return (

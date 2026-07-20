@@ -6,6 +6,7 @@ import KpiCards from './components/KpiCards';
 import DocumentTable from './components/DocumentTable';
 import OfficerRegistrationModal from './components/OfficerRegistrationModal';
 import ScholarRegistrationModal from './components/ScholarRegistrationModal';
+import ScholarFormModal from './components/ScholarFormModal';
 import ScholarList from './components/ScholarList';
 import AnalyticsTab from './components/AnalyticsTab';
 import { BARANGAYS, LYDC_CENTERS } from './api/_utils/constants';
@@ -39,6 +40,8 @@ export default function Page() {
   const [showAdminAddPass, setShowAdminAddPass] = useState(false);
   const [isOfficerRegisterOpen, setIsOfficerRegisterOpen] = useState(false);
   const [isScholarRegisterOpen, setIsScholarRegisterOpen] = useState(false);
+  const [isPublicApplyOpen, setIsPublicApplyOpen] = useState(false);
+  const [publicSubmittedAfs, setPublicSubmittedAfs] = useState(null);
 
   // Active Tab
   const [activeTab, setActiveTab] = useState('home');
@@ -92,7 +95,7 @@ export default function Page() {
   // 1. Session Verification
   useEffect(() => {
     checkSession();
-    // Auto-trigger Scholar Registration Modal from query parameter or URL hash (for QR code scan)
+    // Auto-trigger Scholar Registration Modal or public Scholar Form from query parameter or URL hash (for QR code scan)
     if (typeof window !== 'undefined') {
       const checkParams = () => {
         const params = new URLSearchParams(window.location.search);
@@ -103,6 +106,13 @@ export default function Page() {
           hash.includes('register-scholar')
         ) {
           setIsScholarRegisterOpen(true);
+        }
+        if (
+          params.get('apply') === 'scholar' || 
+          hash.includes('apply=scholar') || 
+          hash.includes('apply-scholar')
+        ) {
+          setIsPublicApplyOpen(true);
         }
       };
       
@@ -698,6 +708,45 @@ export default function Page() {
             isOpen={isScholarRegisterOpen}
             onClose={() => setIsScholarRegisterOpen(false)}
           />
+        )}
+
+        {/* Public Scholar Form Modal */}
+        {isPublicApplyOpen && (
+          <ScholarFormModal
+            isOpen={isPublicApplyOpen}
+            isPublicMode={true}
+            onClose={() => setIsPublicApplyOpen(false)}
+            onSave={(afs) => {
+              setIsPublicApplyOpen(false);
+              setPublicSubmittedAfs(afs);
+            }}
+          />
+        )}
+
+        {/* Public Application Success Modal */}
+        {publicSubmittedAfs && (
+          <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-[110] p-4 animate-in fade-in duration-200">
+            <div className="glass-panel border border-gold/30 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl relative p-8 flex flex-col items-center text-center gap-5">
+              <div className="w-16 h-16 bg-green-500/10 border border-green-500/25 rounded-full flex items-center justify-center text-green-400">
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gold-gradient leading-tight">Application Submitted!</h3>
+                <p className="text-xs text-white/50 mt-1">Your scholar application has been recorded successfully.</p>
+              </div>
+              <div className="w-full p-4 bg-white/[0.03] border border-white/10 rounded-xl flex flex-col gap-1 items-center">
+                <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Your Application Number:</span>
+                <h1 className="text-3xl font-black text-gold tracking-tight font-mono">{publicSubmittedAfs}</h1>
+              </div>
+              <p className="text-[11px] text-white/40 leading-relaxed">Please keep a copy of this number for your reference and physical documents.</p>
+              <button 
+                onClick={() => setPublicSubmittedAfs(null)}
+                className="w-full py-2.5 bg-gold-gradient text-forest-dark font-extrabold text-sm rounded-lg transition-all hover:shadow-lg cursor-pointer"
+              >
+                Okay, Understood
+              </button>
+            </div>
+          </div>
         )}
       </main>
     );

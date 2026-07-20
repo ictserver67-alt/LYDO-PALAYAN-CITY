@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BARANGAYS } from '../api/_utils/constants';
 
-export default function ScholarFormModal({ isOpen, onClose, application = null, onSave }) {
+export default function ScholarFormModal({ isOpen, onClose, application = null, onSave, isPublicMode = false }) {
   const isEditMode = !!application;
   
   const [formData, setFormData] = useState({
@@ -100,7 +100,7 @@ export default function ScholarFormModal({ isOpen, onClose, application = null, 
     setLoading(true);
     setError('');
 
-    const url = isEditMode ? '/api/admin/updateScholar' : '/api/admin/encodeScholar';
+    const url = isPublicMode ? '/api/public/submitScholar' : (isEditMode ? '/api/admin/updateScholar' : '/api/admin/encodeScholar');
     
     try {
       const res = await fetch(url, {
@@ -336,20 +336,22 @@ export default function ScholarFormModal({ isOpen, onClose, application = null, 
             </div>
 
             {/* Status */}
-            <div className="flex flex-col w-full max-w-xs">
-              <label className="input-label">Status</label>
-              <select 
-                name="status" 
-                value={formData.status} 
-                onChange={handleChange} 
-                className="input-field font-bold cursor-pointer" 
-                disabled={loading}
-              >
-                <option value="Pending" className="bg-forest-dark text-yellow-400">For Review</option>
-                <option value="Approved" className="bg-forest-dark text-green-400">Approve</option>
-                <option value="Rejected" className="bg-forest-dark text-red-400">Disapprove</option>
-              </select>
-            </div>
+            {!isPublicMode && (
+              <div className="flex flex-col w-full max-w-xs">
+                <label className="input-label">Status</label>
+                <select 
+                  name="status" 
+                  value={formData.status} 
+                  onChange={handleChange} 
+                  className="input-field font-bold cursor-pointer" 
+                  disabled={loading}
+                >
+                  <option value="Pending" className="bg-forest-dark text-yellow-400">For Review</option>
+                  <option value="Approved" className="bg-forest-dark text-green-400">Approve</option>
+                  <option value="Rejected" className="bg-forest-dark text-red-400">Disapprove</option>
+                </select>
+              </div>
+            )}
 
           </form>
         </div>
