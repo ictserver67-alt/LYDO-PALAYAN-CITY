@@ -453,6 +453,39 @@ function resolveMockQuery(text, params = []) {
     return { rows: [], rowCount: 1 };
   }
 
+  // DELETE FROM scholar_applications WHERE id = $1
+  if (sql.includes('DELETE FROM scholar_applications WHERE id = $1')) {
+    mockApplications = mockApplications.filter(a => a.id !== params[0]);
+    return { rows: [], rowCount: 1 };
+  }
+
+  // Quick status update: UPDATE scholar_applications SET status = $1 WHERE id = $2
+  if (sql.includes('UPDATE scholar_applications SET status = $1 WHERE id = $2')) {
+    const app = mockApplications.find(a => a.id === params[1]);
+    if (app) {
+      app.status = params[0];
+    }
+    return { rows: [], rowCount: 1 };
+  }
+
+  // Re-indexing: WITH reordered AS
+  if (sql.includes('WITH reordered AS')) {
+    const sorted = [...mockApplications].sort((a, b) => new Date(a.date_filed) - new Date(b.date_filed));
+    sorted.forEach((app, index) => {
+      const actualApp = mockApplications.find(a => a.id === app.id);
+      if (actualApp) {
+        actualApp.application_no = 'AFS-' + String(index + 1).padStart(5, '0');
+      }
+    });
+    return { rows: [], rowCount: mockApplications.length };
+  }
+
+  // SELECT application_no FROM scholar_applications WHERE student_full_name = $1 AND date_of_birth = $2
+  if (sql.includes('SELECT application_no FROM scholar_applications WHERE student_full_name = $1 AND date_of_birth = $2')) {
+    const app = mockApplications.find(a => a.student_full_name === params[0] && a.date_of_birth === params[1]);
+    return { rows: app ? [app] : [], rowCount: app ? 1 : 0 };
+  }
+
   return { rows: [], rowCount: 0 };
 }
 

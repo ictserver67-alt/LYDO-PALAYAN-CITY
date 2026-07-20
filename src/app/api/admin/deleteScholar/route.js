@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSessionFromRequest } from '../../_utils/session';
 import { query } from '../../_utils/db';
+import { reindexScholars } from '../../_utils/reindex';
 
 export async function POST(req) {
   try {
@@ -20,7 +21,6 @@ export async function POST(req) {
     await query('DELETE FROM scholar_applications WHERE id = $1', [id]);
 
     // Re-index all application numbers sequentially to fill the gap
-    const { reindexScholars } = require('../../_utils/reindex');
     await reindexScholars();
 
     // Log the action

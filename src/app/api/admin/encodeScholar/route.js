@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSessionFromRequest } from '../../_utils/session';
 import { query } from '../../_utils/db';
+import { reindexScholars } from '../../_utils/reindex';
 
 export async function POST(req) {
   try {
@@ -69,7 +70,6 @@ export async function POST(req) {
     await query(insertQuery, values);
 
     // Re-index all application numbers sequentially
-    const { reindexScholars } = require('../../_utils/reindex');
     await reindexScholars();
 
     // Fetch the final assigned application_no
