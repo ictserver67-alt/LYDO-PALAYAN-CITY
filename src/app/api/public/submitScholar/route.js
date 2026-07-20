@@ -56,7 +56,7 @@ export async function POST(req) {
       data.isOutOfSchoolYouth ? true : false,
       data.specialCircumstancesSpecify || null,
       'Pending',
-      'Public (QR Code)'
+      null
     ];
 
     await query(insertQuery, values);
