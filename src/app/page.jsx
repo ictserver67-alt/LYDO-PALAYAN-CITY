@@ -92,12 +92,29 @@ export default function Page() {
   // 1. Session Verification
   useEffect(() => {
     checkSession();
-    // Auto-trigger Scholar Registration Modal from query parameter (for QR code scan)
+    // Auto-trigger Scholar Registration Modal from query parameter or URL hash (for QR code scan)
     if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('register') === 'scholar') {
-        setIsScholarRegisterOpen(true);
-      }
+      const checkParams = () => {
+        const params = new URLSearchParams(window.location.search);
+        const hash = window.location.hash;
+        if (
+          params.get('register') === 'scholar' || 
+          hash.includes('register=scholar') || 
+          hash.includes('register-scholar')
+        ) {
+          setIsScholarRegisterOpen(true);
+        }
+      };
+      
+      // Run immediately and after a short delay to account for hydration
+      checkParams();
+      const timer = setTimeout(checkParams, 500);
+      
+      window.addEventListener('hashchange', checkParams);
+      return () => {
+        clearTimeout(timer);
+        window.removeEventListener('hashchange', checkParams);
+      };
     }
   }, []);
 

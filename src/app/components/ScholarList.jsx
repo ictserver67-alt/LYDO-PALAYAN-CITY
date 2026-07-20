@@ -98,6 +98,14 @@ export default function ScholarList({ user }) {
     }
   };
 
+  const getQrDataUrl = () => {
+    let base = typeof window !== 'undefined' ? window.location.origin : 'https://lydo-portal-flax.vercel.app';
+    if (base.includes('-projects.vercel.app') || base.includes('localhost') || base.includes('127.0.0.1')) {
+      base = 'https://lydo-portal-flax.vercel.app';
+    }
+    return `${base}/#register=scholar`;
+  };
+
   return (
     <div className="flex flex-col gap-6 w-full font-sans">
       {/* Header & Main Actions */}
@@ -174,12 +182,12 @@ export default function ScholarList({ user }) {
           <select
             value={filterStatus}
             onChange={e => setFilterStatus(e.target.value)}
-            className="input-field text-xs py-2 px-3 min-w-[140px] cursor-pointer"
+            className="input-field text-xs py-2 px-3 min-w-[160px] cursor-pointer"
           >
             <option value="All" className="bg-forest-dark text-white">All Statuses</option>
-            <option value="Pending" className="bg-forest-dark text-white">For Review</option>
+            <option value="Pending" className="bg-forest-dark text-white">For Review (Pending)</option>
             <option value="Approved" className="bg-forest-dark text-white">Approved</option>
-            <option value="Rejected" className="bg-forest-dark text-white">Disapproved</option>
+            <option value="Rejected" className="bg-forest-dark text-white">Disapproved (Rejected)</option>
           </select>
         </div>
 
@@ -197,21 +205,19 @@ export default function ScholarList({ user }) {
         </div>
       </div>
 
-      {/* Grid List Table */}
-      <div className="glass-panel rounded-xl p-6 border border-gold/15 w-full">
+      {/* Directory Table */}
+      <div className="glass-panel rounded-2xl border border-gold/15 p-6">
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-12 gap-3">
+          <div className="flex flex-col items-center justify-center py-12 gap-3 text-white/60">
             <svg className="animate-spin h-8 w-8 text-gold" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
-            <span className="text-white/40 text-xs">Fetching scholar records...</span>
+            <span className="text-xs">Fetching scholar records...</span>
           </div>
         ) : applications.length === 0 ? (
-          <div className="py-16 text-center text-white/30 flex flex-col items-center gap-3">
-            <svg className="w-12 h-12 text-white/10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
+          <div className="text-center py-12 text-white/40 text-sm flex flex-col items-center gap-2">
+            <svg className="w-10 h-10 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
             <span>No scholar applications found in system.</span>
           </div>
         ) : (
@@ -300,16 +306,18 @@ export default function ScholarList({ user }) {
                         <td className="py-4 px-6 text-right flex justify-end gap-2">
                           <button
                             onClick={() => handleOpenEdit(app)}
-                            className="px-3 py-1.5 rounded border border-gold/45 text-gold hover:bg-gold/10 font-bold text-xs hover:shadow-md transition-all cursor-pointer"
+                            className="p-1.5 border border-white/10 rounded text-white/60 hover:text-gold hover:border-gold/30 transition-all cursor-pointer"
+                            title="Edit profile & evaluations"
                           >
-                            Edit
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                           </button>
                           {user?.role === 'admin' && (
                             <button
                               onClick={() => handleDeleteScholar(app.id, app.student_full_name)}
-                              className="px-3 py-1.5 rounded border border-red-500/30 text-red-400 hover:bg-red-500/10 font-bold text-xs hover:shadow-md transition-all cursor-pointer"
+                              className="p-1.5 border border-red-500/25 rounded text-red-400 hover:bg-red-500/10 hover:border-red-500/40 transition-all cursor-pointer"
+                              title="Delete scholar record"
                             >
-                              Delete
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                             </button>
                           )}
                         </td>
@@ -352,7 +360,7 @@ export default function ScholarList({ user }) {
 
             <div className="p-3 bg-white/[0.03] border border-white/10 rounded-xl relative shadow-inner">
               <img 
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&color=d4af37&bgcolor=082010&data=${encodeURIComponent(typeof window !== 'undefined' ? `${window.location.origin}/?register=scholar` : 'https://lydo-palayan-city.vercel.app/?register=scholar')}`} 
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&color=d4af37&bgcolor=082010&data=${encodeURIComponent(getQrDataUrl())}`} 
                 alt="Scholar Registration QR Code"
                 className="w-[200px] h-[200px] rounded-lg border border-gold/25"
               />
@@ -362,13 +370,13 @@ export default function ScholarList({ user }) {
               <input 
                 type="text"
                 readOnly
-                value={typeof window !== 'undefined' ? `${window.location.origin}/?register=scholar` : 'https://lydo-palayan-city.vercel.app/?register=scholar'}
+                value={getQrDataUrl()}
                 className="input-field text-[10px] text-center font-mono py-2 select-all cursor-text text-white/80"
               />
               <div className="flex gap-2">
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText(typeof window !== 'undefined' ? `${window.location.origin}/?register=scholar` : 'https://lydo-palayan-city.vercel.app/?register=scholar');
+                    navigator.clipboard.writeText(getQrDataUrl());
                     alert('Copied link to clipboard!');
                   }}
                   className="flex-1 py-2 px-3 border border-gold/30 hover:bg-gold/10 text-gold text-xs font-bold rounded-lg transition-all cursor-pointer"
@@ -378,7 +386,7 @@ export default function ScholarList({ user }) {
                 <button
                   onClick={() => {
                     const printWindow = window.open('', '_blank');
-                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&color=000000&bgcolor=ffffff&data=${encodeURIComponent(typeof window !== 'undefined' ? `${window.location.origin}/?register=scholar` : 'https://lydo-palayan-city.vercel.app/?register=scholar')}`;
+                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&color=000000&bgcolor=ffffff&data=${encodeURIComponent(getQrDataUrl())}`;
                     printWindow.document.write(`
                       <html>
                         <head>
@@ -393,7 +401,7 @@ export default function ScholarList({ user }) {
                           <h2>PALAYAN CITY YOUTH PORTAL</h2>
                           <p style="margin-bottom: 30px; font-weight: bold; color: #444;">Scan to Register as Scholar & Submit Application</p>
                           <img src="${qrUrl}" width="350" height="350" />
-                          <p style="font-size: 14px; font-family: monospace; color: #555;">${typeof window !== 'undefined' ? `${window.location.origin}/?register=scholar` : ''}</p>
+                          <p style="font-size: 14px; font-family: monospace; color: #555;">${getQrDataUrl()}</p>
                           <script>
                             window.onload = function() {
                               setTimeout(function() { window.print(); window.close(); }, 500);
