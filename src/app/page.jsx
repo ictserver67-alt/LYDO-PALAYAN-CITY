@@ -5,6 +5,7 @@ import Sidebar from './components/Sidebar';
 import KpiCards from './components/KpiCards';
 import DocumentTable from './components/DocumentTable';
 import OfficerRegistrationModal from './components/OfficerRegistrationModal';
+import ScholarRegistrationModal from './components/ScholarRegistrationModal';
 import ScholarList from './components/ScholarList';
 import AnalyticsTab from './components/AnalyticsTab';
 import { BARANGAYS, LYDC_CENTERS } from './api/_utils/constants';
@@ -37,6 +38,7 @@ export default function Page() {
   const [showLoginPass, setShowLoginPass] = useState(false);
   const [showAdminAddPass, setShowAdminAddPass] = useState(false);
   const [isOfficerRegisterOpen, setIsOfficerRegisterOpen] = useState(false);
+  const [isScholarRegisterOpen, setIsScholarRegisterOpen] = useState(false);
 
   // Active Tab
   const [activeTab, setActiveTab] = useState('home');
@@ -90,6 +92,13 @@ export default function Page() {
   // 1. Session Verification
   useEffect(() => {
     checkSession();
+    // Auto-trigger Scholar Registration Modal from query parameter (for QR code scan)
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('register') === 'scholar') {
+        setIsScholarRegisterOpen(true);
+      }
+    }
   }, []);
 
   const checkSession = async () => {
@@ -618,15 +627,28 @@ export default function Page() {
               {loginLoading ? 'Authenticating...' : 'Sign In'}
             </button>
 
-            <div className="text-center mt-3 flex flex-col gap-2">
-              <span className="text-xs text-white/50">New SK or LYDO Officer? </span>
-              <button
-                type="button"
-                onClick={() => setIsOfficerRegisterOpen(true)}
-                className="text-xs text-gold font-bold hover:underline transition-all cursor-pointer"
-              >
-                Register Officer Account
-              </button>
+            <div className="text-center mt-3 flex flex-col gap-2.5">
+              <div className="flex flex-col gap-1">
+                <span className="text-xs text-white/50">Are you a Student/Scholar?</span>
+                <button
+                  type="button"
+                  onClick={() => setIsScholarRegisterOpen(true)}
+                  className="text-xs text-gold font-bold hover:underline transition-all cursor-pointer"
+                >
+                  Register Scholar Account & Apply
+                </button>
+              </div>
+              
+              <div className="flex flex-col gap-1 mt-1 border-t border-white/5 pt-2">
+                <span className="text-[10px] text-white/40">New SK or LYDO Officer?</span>
+                <button
+                  type="button"
+                  onClick={() => setIsOfficerRegisterOpen(true)}
+                  className="text-[10px] text-gold/70 hover:text-gold font-bold hover:underline transition-all cursor-pointer"
+                >
+                  Register Officer Account
+                </button>
+              </div>
             </div>
           </form>
         </div>
@@ -650,6 +672,14 @@ export default function Page() {
           <OfficerRegistrationModal
             isOpen={isOfficerRegisterOpen}
             onClose={() => setIsOfficerRegisterOpen(false)}
+          />
+        )}
+
+        {/* Scholar registration modal */}
+        {isScholarRegisterOpen && (
+          <ScholarRegistrationModal
+            isOpen={isScholarRegisterOpen}
+            onClose={() => setIsScholarRegisterOpen(false)}
           />
         )}
       </main>

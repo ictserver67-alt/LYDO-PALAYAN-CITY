@@ -66,8 +66,20 @@ export async function POST(req) {
       session.username // evaluated_by is the encoder
     ];
 
-    const res = await query(insertQuery, values);
-    const newAfs = res.rows[0].application_no;
+    await query(insertQuery, values);
+
+    // Re-index all application numbers sequentially
+    const { reindexScholars } = require('../../_utils/reindex');
+    await reindexScholars();
+
+    // Fetch the final assigned application_no
+    const finalRes = await query(
+      `SELECT application_no FROM scholar_applications 
+       WHERE student_full_name = $1 AND date_of_birth = $2 
+       ORDER BY date_filed DESC LIMIT 1`,
+      [data.studentFullName, data.dateOfBirth]
+    );
+    const newAfs = finalRes.rows[0]?.application_no || 'AFS-00001';
 
     // Log the action
     await query(

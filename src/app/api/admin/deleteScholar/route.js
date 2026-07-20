@@ -19,6 +19,10 @@ export async function POST(req) {
     // Delete the scholar application
     await query('DELETE FROM scholar_applications WHERE id = $1', [id]);
 
+    // Re-index all application numbers sequentially to fill the gap
+    const { reindexScholars } = require('../../_utils/reindex');
+    await reindexScholars();
+
     // Log the action
     await query(
       `INSERT INTO audit_logs (actor, action, details) VALUES ($1, $2, $3)`,
@@ -28,6 +32,6 @@ export async function POST(req) {
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error('Delete scholar error:', err);
-    return NextResponse.json({ error: 'Failed to delete scholar application' }, { status: 500 });
+    return NextResponse.json({ error: `Failed to delete scholar application: ${err.message}` }, { status: 500 });
   }
 }

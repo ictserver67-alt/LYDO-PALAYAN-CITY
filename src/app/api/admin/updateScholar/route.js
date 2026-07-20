@@ -4,6 +4,7 @@ import { query } from '../../_utils/db';
 
 export async function POST(req) {
   try {
+    const session = getSessionFromRequest(req);
     // Only encoders and admins can update scholar records
     if (!session || (session.role !== 'encoder' && session.role !== 'admin')) {
       return NextResponse.json({ error: 'ACCESS_DENIED: Access restricted to encoders and admins only.' }, { status: 403 });
