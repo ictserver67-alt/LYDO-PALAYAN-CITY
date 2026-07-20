@@ -70,9 +70,14 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Missing required application fields.' }, { status: 400 });
     }
 
-    // 2. Fetch existing application to preserve old file references if not re-uploaded
+    // 2. Fetch existing application - block resubmission if already exists (one-time submission)
     const checkRes = await query('SELECT * FROM scholar_applications WHERE username = $1', [session.username]);
-    const existing = checkRes.rows[0] || {};
+    if (checkRes.rows.length > 0) {
+      return NextResponse.json({
+        error: 'You have already submitted an application. Submissions are final and cannot be edited. Please contact the administrator if you need to make corrections.'
+      }, { status: 409 });
+    }
+    const existing = {};
 
     // 3. Resolve student Google Drive folder
     const appFolderId = await getOrCreateSubfolder('[SCHOLAR_APPLICATIONS]', ROOT_FOLDER_ID);

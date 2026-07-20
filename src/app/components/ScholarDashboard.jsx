@@ -228,53 +228,14 @@ export default function ScholarDashboard({ user }) {
             <p className="text-xs text-white/50">Submitted on: {new Date(app.date_filed).toLocaleDateString('en-US', { timeZone: 'Asia/Manila' })}</p>
           </div>
 
-          <div className="flex gap-4">
-            <button
-              onClick={() => {
-                setFormData({
-                  semesterSy: app.semester_sy,
-                  lastName: app.last_name,
-                  firstName: app.first_name,
-                  middleName: app.middle_name || '',
-                  suffix: app.suffix || '',
-                  dateOfBirth: app.date_of_birth ? app.date_of_birth.substring(0, 10) : '',
-                  sex: app.sex,
-                  civilStatus: app.civil_status,
-                  contactNumber: app.contact_number,
-                  address: app.address,
-                  barangay: app.barangay,
-                  email: app.email,
-                  schoolEnrolled: app.school_enrolled,
-                  courseProgram: app.course_program,
-                  yearLevel: app.year_level,
-                  studentIdNo: app.student_id_no || '',
-                  gwa: app.gwa,
-                  gwaScale: app.gwa_scale || '100',
-                  q1Grade: app.q1_grade || '',
-                  q2Grade: app.q2_grade || '',
-                  q3Grade: app.q3_grade || '',
-                  q4Grade: app.q4_grade || '',
-                  parentGuardianName: app.parent_guardian_name,
-                  relationship: app.relationship,
-                  parentContact: app.parent_contact,
-                  monthlyIncome: app.monthly_income,
-                  numDependents: app.num_dependents.toString(),
-                  sourceOfIncome: app.source_of_income,
-                  isSoloParentBeneficiary: !!app.is_solo_parent_beneficiary,
-                  isOrphan: !!app.is_orphan,
-                  isPwd: !!app.is_pwd,
-                  isIp: !!app.is_ip,
-                  isOutOfSchoolYouth: !!app.is_out_of_school_youth,
-                  isMarginalized: !!app.is_marginalized,
-                  specialCircumstancesSpecify: app.special_circumstances_specify || '',
-                  leadershipActivities: app.leadership_activities || ''
-                });
-                setIsEditing(true);
-              }}
-              className="px-5 py-3 rounded-lg border border-gold/30 hover:bg-gold/10 text-gold text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
-            >
-              Update / Edit Form
-            </button>
+          <div className="flex flex-col items-end gap-2">
+            <div className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg">
+              <svg className="w-4 h-4 text-white/40 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <span className="text-[10px] text-white/40 font-semibold uppercase tracking-wider">Submission Locked</span>
+            </div>
+            <p className="text-[10px] text-white/30 text-right max-w-[180px]">Application is under review. Contact the admin for changes.</p>
           </div>
         </div>
 
