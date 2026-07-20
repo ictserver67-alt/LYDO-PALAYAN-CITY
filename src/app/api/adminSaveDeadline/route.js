@@ -17,6 +17,18 @@ export async function POST(req) {
 
     const targetId = id || `dl-${Date.now()}`;
 
+    let parsedDate;
+    if (typeof date === 'string') {
+      if (!date.includes('Z') && !/[+-]\d{2}:?\d{2}$/.test(date)) {
+        const hasSeconds = date.split(':').length === 3;
+        parsedDate = new Date(`${date}${hasSeconds ? '' : ':00'}+08:00`);
+      } else {
+        parsedDate = new Date(date);
+      }
+    } else {
+      parsedDate = new Date(date);
+    }
+
     // Upsert into Supabase
     await query(
       `INSERT INTO deadlines (id, title, date, created_by)
@@ -25,7 +37,7 @@ export async function POST(req) {
          title = EXCLUDED.title,
          date = EXCLUDED.date,
          created_by = EXCLUDED.created_by`,
-      [targetId, title, new Date(date), session.username]
+      [targetId, title, parsedDate, session.username]
     );
 
     // Log to audit log

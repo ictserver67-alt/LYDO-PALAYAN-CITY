@@ -244,11 +244,11 @@ export default function AnalyticsTab() {
                           </div>
                         </td>
                         <td className="px-4 py-3 text-white/60 whitespace-nowrap">
-                          {row.lastUpload ? new Date(row.lastUpload).toLocaleDateString('en-US', {
-                            month: 'short', day: 'numeric', year: 'numeric'
-                          }) : (
-                            <span className="text-white/20 italic">No uploads</span>
-                          )}
+                           {row.lastUpload ? new Date(row.lastUpload).toLocaleDateString('en-US', {
+                             month: 'short', day: 'numeric', year: 'numeric', timeZone: 'Asia/Manila'
+                           }) : (
+                             <span className="text-white/20 italic">No uploads</span>
+                           )}
                         </td>
                         <td className="px-4 py-3 text-center font-bold text-white/80 whitespace-nowrap">{row.m3}</td>
                         <td className="px-4 py-3 text-center font-bold text-white/80 whitespace-nowrap">{row.m2}</td>

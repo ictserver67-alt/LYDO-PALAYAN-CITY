@@ -212,7 +212,8 @@ export default function ScholarList({ user }) {
                   const bdate = app.date_of_birth ? new Date(app.date_of_birth).toLocaleDateString('en-US', {
                     month: 'short',
                     day: 'numeric',
-                    year: 'numeric'
+                    year: 'numeric',
+                    timeZone: 'Asia/Manila'
                   }) : '—';
 
                   return (

@@ -225,7 +225,7 @@ export default function ScholarDashboard({ user }) {
                 </span>
               )}
             </div>
-            <p className="text-xs text-white/50">Submitted on: {new Date(app.date_filed).toLocaleDateString()}</p>
+            <p className="text-xs text-white/50">Submitted on: {new Date(app.date_filed).toLocaleDateString('en-US', { timeZone: 'Asia/Manila' })}</p>
           </div>
 
           <div className="flex gap-4">

@@ -158,7 +158,8 @@ export default function DocumentTable({ documents, title, onRefresh, isAdmin }) 
                       day: 'numeric',
                       year: 'numeric',
                       hour: '2-digit',
-                      minute: '2-digit'
+                      minute: '2-digit',
+                      timeZone: 'Asia/Manila'
                     })}
                   </td>
                   <td className="py-4 px-6 text-right flex justify-end gap-2">
