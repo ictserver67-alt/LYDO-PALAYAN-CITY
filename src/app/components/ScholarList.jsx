@@ -7,6 +7,7 @@ export default function ScholarList({ user }) {
   const [loading, setLoading] = useState(true);
   const [filterBarangay, setFilterBarangay] = useState('All');
   const [filterStatus, setFilterStatus] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
   
   // Modal States
   const [selectedApp, setSelectedApp] = useState(null);
@@ -161,6 +162,31 @@ export default function ScholarList({ user }) {
 
       {/* Filters Box */}
       <div className="glass-panel rounded-xl p-5 border border-gold/15 flex flex-wrap gap-4 items-center">
+        {/* Search */}
+        <div className="flex flex-col gap-1 flex-1 min-w-[200px]">
+          <span className="text-[10px] text-white/40 uppercase font-semibold">Search Scholar</span>
+          <div className="relative">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search by name, AFS no., school, barangay..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="input-field text-xs py-2 pl-8 pr-3 w-full"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white transition-all cursor-pointer"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            )}
+          </div>
+        </div>
+
         {/* Barangay Filter */}
         <div className="flex flex-col gap-1">
           <span className="text-[10px] text-white/40 uppercase font-semibold">Filter by Barangay</span>
@@ -215,12 +241,27 @@ export default function ScholarList({ user }) {
             </svg>
             <span className="text-xs">Fetching scholar records...</span>
           </div>
-        ) : applications.length === 0 ? (
-          <div className="text-center py-12 text-white/40 text-sm flex flex-col items-center gap-2">
-            <svg className="w-10 h-10 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-            <span>No scholar applications found in system.</span>
-          </div>
-        ) : (
+        ) : (() => {
+          const q = searchQuery.toLowerCase().trim();
+          const filtered = q
+            ? applications.filter(a =>
+                (a.student_full_name || '').toLowerCase().includes(q) ||
+                (a.application_no || '').toLowerCase().includes(q) ||
+                (a.school || '').toLowerCase().includes(q) ||
+                (a.barangay || '').toLowerCase().includes(q) ||
+                (a.email || '').toLowerCase().includes(q) ||
+                (a.contact_number || '').toLowerCase().includes(q)
+              )
+            : applications;
+
+          if (filtered.length === 0) return (
+            <div className="text-center py-12 text-white/40 text-sm flex flex-col items-center gap-2">
+              <svg className="w-10 h-10 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+              <span>{q ? `No results for "${searchQuery}"` : 'No scholar applications found in system.'}</span>
+            </div>
+          );
+
+          return (
           <div className="overflow-x-auto w-full border border-white/5 rounded-lg">
             <table className="w-full text-left border-collapse">
               <thead>
@@ -236,7 +277,7 @@ export default function ScholarList({ user }) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5 text-sm text-white/80">
-                {applications.map((app) => {
+                {filtered.map((app) => {
                   // Circumstances labels
                   const circs = [];
                   if (app.is_solo_parent_beneficiary) circs.push('Solo Parent');
@@ -328,7 +369,8 @@ export default function ScholarList({ user }) {
               </tbody>
             </table>
           </div>
-        )}
+          );
+        })()}
       </div>
 
       {/* Form Modal (handles both Create and Edit) */}

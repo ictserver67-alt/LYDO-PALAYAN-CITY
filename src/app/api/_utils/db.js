@@ -401,11 +401,12 @@ function resolveMockQuery(text, params = []) {
 
   // 24. INSERT INTO scholar_applications
   if (sql.includes('INSERT INTO scholar_applications')) {
-    const nextVal = mockApplications.length + 1;
-    const applicationNo = 'AFS-' + String(nextVal).padStart(5, '0');
+    const uniqueId = 'app-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
+    // Assign a temporary application_no — reindexScholars will fix this to proper sequential order
+    const tempNo = 'AFS-TEMP-' + Date.now();
     const newApp = {
-      id: 'app-' + nextVal,
-      application_no: applicationNo,
+      id: uniqueId,
+      application_no: tempNo,
       date_filed: new Date().toISOString(),
       student_full_name: params[0],
       date_of_birth: params[1],
@@ -426,7 +427,7 @@ function resolveMockQuery(text, params = []) {
       evaluated_at: new Date().toISOString()
     };
     mockApplications.push(newApp);
-    return { rows: [{ application_no: applicationNo }], rowCount: 1 };
+    return { rows: [{ application_no: tempNo }], rowCount: 1 };
   }
 
   // 25. UPDATE scholar_applications
