@@ -99,9 +99,9 @@ export default function ScholarList({ user }) {
   };
 
   const getQrDataUrl = () => {
-    let base = typeof window !== 'undefined' ? window.location.origin : 'https://lydo-portal-flax.vercel.app';
+    let base = typeof window !== 'undefined' ? window.location.origin : 'https://lydo-palayan-city.vercel.app';
     if (base.includes('-projects.vercel.app') || base.includes('localhost') || base.includes('127.0.0.1')) {
-      base = 'https://lydo-portal-flax.vercel.app';
+      base = 'https://lydo-palayan-city.vercel.app';
     }
     return `${base}/#apply=scholar`;
   };
