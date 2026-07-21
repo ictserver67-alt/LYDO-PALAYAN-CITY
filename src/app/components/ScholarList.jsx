@@ -9,15 +9,30 @@ export default function ScholarList({ user }) {
   const [filterStatus, setFilterStatus] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   
+  // Pagination States
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+
   // Modal States
   const [selectedApp, setSelectedApp] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [generatedAfs, setGeneratedAfs] = useState(null);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
 
+  // Reset page to 1 whenever filters, search, or row limit change
   useEffect(() => {
-    fetchApplications();
-  }, [filterBarangay, filterStatus]);
+    setPage(1);
+  }, [filterBarangay, filterStatus, limit, searchQuery]);
+
+  // Fetch applications whenever page, limit, filters, or search change
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchApplications();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [page, limit, filterBarangay, filterStatus, searchQuery]);
 
   const fetchApplications = async () => {
     setLoading(true);
@@ -25,11 +40,22 @@ export default function ScholarList({ user }) {
       const queryParams = new URLSearchParams();
       if (filterBarangay !== 'All') queryParams.append('barangay', filterBarangay);
       if (filterStatus !== 'All') queryParams.append('status', filterStatus);
+      if (searchQuery.trim()) queryParams.append('search', searchQuery.trim());
+      queryParams.append('page', page.toString());
+      queryParams.append('limit', limit.toString());
 
       const res = await fetch(`/api/admin/listApplications?${queryParams.toString()}`);
       const data = await res.json();
       if (res.ok) {
-        setApplications(data);
+        if (Array.isArray(data)) {
+          setApplications(data);
+          setTotalRecords(data.length);
+          setTotalPages(1);
+        } else {
+          setApplications(data.applications || []);
+          setTotalRecords(data.total || 0);
+          setTotalPages(data.totalPages || 1);
+        }
       }
     } catch (err) {
       console.error('Failed to load applications:', err);
@@ -217,6 +243,20 @@ export default function ScholarList({ user }) {
           </select>
         </div>
 
+        {/* Rows Per Page */}
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] text-white/40 uppercase font-semibold">Rows Per Page</span>
+          <select
+            value={limit}
+            onChange={e => setLimit(Number(e.target.value))}
+            className="input-field text-xs py-2 px-3 min-w-[110px] cursor-pointer font-semibold text-gold"
+          >
+            <option value={10} className="bg-forest-dark text-white">10 per page</option>
+            <option value={25} className="bg-forest-dark text-white">25 per page</option>
+            <option value={50} className="bg-forest-dark text-white">50 per page</option>
+          </select>
+        </div>
+
         {/* Refresh Button */}
         <div className="flex items-end self-end h-[38px]">
           <button
@@ -241,136 +281,171 @@ export default function ScholarList({ user }) {
             </svg>
             <span className="text-xs">Fetching scholar records...</span>
           </div>
-        ) : (() => {
-          const q = searchQuery.toLowerCase().trim();
-          const filtered = q
-            ? applications.filter(a =>
-                (a.student_full_name || '').toLowerCase().includes(q) ||
-                (a.application_no || '').toLowerCase().includes(q) ||
-                (a.school || '').toLowerCase().includes(q) ||
-                (a.barangay || '').toLowerCase().includes(q) ||
-                (a.email || '').toLowerCase().includes(q) ||
-                (a.contact_number || '').toLowerCase().includes(q)
-              )
-            : applications;
+        ) : applications.length === 0 ? (
+          <div className="text-center py-12 text-white/40 text-sm flex flex-col items-center gap-2">
+            <svg className="w-10 h-10 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+            <span>{searchQuery ? `No results for "${searchQuery}"` : 'No scholar applications found in system.'}</span>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            <div className="overflow-x-auto w-full border border-white/5 rounded-lg">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-white/5 border-b border-white/10 text-gold/80 text-xs font-semibold uppercase tracking-wider">
+                    <th className="py-4 px-6">Application No.</th>
+                    <th className="py-4 px-6">Student Name</th>
+                    <th className="py-4 px-6">Birthdate / Sex</th>
+                    <th className="py-4 px-6">Barangay</th>
+                    <th className="py-4 px-6">School Details</th>
+                    <th className="py-4 px-6">Circumstances</th>
+                    <th className="py-4 px-6">Status</th>
+                    {(user?.role === 'encoder' || user?.role === 'admin') && <th className="py-4 px-6 text-right">Actions</th>}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5 text-sm text-white/80">
+                  {applications.map((app) => {
+                    // Circumstances labels
+                    const circs = [];
+                    if (app.is_solo_parent_beneficiary) circs.push('Solo Parent');
+                    if (app.is_orphan) circs.push('Orphan');
+                    if (app.is_pwd) circs.push('PWD');
+                    if (app.is_ip) circs.push('IP');
+                    if (app.is_out_of_school_youth) circs.push('OSY');
 
-          if (filtered.length === 0) return (
-            <div className="text-center py-12 text-white/40 text-sm flex flex-col items-center gap-2">
-              <svg className="w-10 h-10 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-              <span>{q ? `No results for "${searchQuery}"` : 'No scholar applications found in system.'}</span>
-            </div>
-          );
+                    const bdate = app.date_of_birth ? new Date(app.date_of_birth).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                      timeZone: 'Asia/Manila'
+                    }) : '—';
 
-          return (
-          <div className="overflow-x-auto w-full border border-white/5 rounded-lg">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-white/5 border-b border-white/10 text-gold/80 text-xs font-semibold uppercase tracking-wider">
-                  <th className="py-4 px-6">Application No.</th>
-                  <th className="py-4 px-6">Student Name</th>
-                  <th className="py-4 px-6">Birthdate / Sex</th>
-                  <th className="py-4 px-6">Barangay</th>
-                  <th className="py-4 px-6">School Details</th>
-                  <th className="py-4 px-6">Circumstances</th>
-                  <th className="py-4 px-6">Status</th>
-                  {(user?.role === 'encoder' || user?.role === 'admin') && <th className="py-4 px-6 text-right">Actions</th>}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5 text-sm text-white/80">
-                {filtered.map((app) => {
-                  // Circumstances labels
-                  const circs = [];
-                  if (app.is_solo_parent_beneficiary) circs.push('Solo Parent');
-                  if (app.is_orphan) circs.push('Orphan');
-                  if (app.is_pwd) circs.push('PWD');
-                  if (app.is_ip) circs.push('IP');
-                  if (app.is_out_of_school_youth) circs.push('OSY');
-
-                  const bdate = app.date_of_birth ? new Date(app.date_of_birth).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric',
-                    timeZone: 'Asia/Manila'
-                  }) : '—';
-
-                  return (
-                    <tr key={app.id} className="hover:bg-white/5 transition-all">
-                      <td className="py-4 px-6 font-semibold text-gold font-mono">{app.application_no}</td>
-                      <td className="py-4 px-6">
-                        <span className="font-semibold text-white">{app.student_full_name}</span>
-                        <p className="text-xs text-white/40 mt-0.5">{app.email} • {app.contact_number}</p>
-                      </td>
-                      <td className="py-4 px-6">
-                        <span>{bdate}</span>
-                        <p className="text-xs text-white/40 mt-0.5">{app.sex}</p>
-                      </td>
-                      <td className="py-4 px-6 text-white/70">{app.barangay}</td>
-                      <td className="py-4 px-6">
-                        <span>{app.school}</span>
-                        <p className="text-xs text-white/40 mt-0.5">SY {app.school_year}</p>
-                      </td>
-                      <td className="py-4 px-6">
-                        {circs.length > 0 ? (
-                          <div className="flex flex-wrap gap-1 max-w-[150px]">
-                            {circs.map(c => (
-                              <span key={c} className="px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-[9px] font-bold text-white/60">
-                                {c}
-                              </span>
-                            ))}
-                          </div>
-                        ) : (
-                          <span className="text-white/30 text-xs">None</span>
-                        )}
-                      </td>
-                      <td className="py-4 px-6">
-                        {(user?.role === 'encoder' || user?.role === 'admin') ? (
-                          <select
-                            value={app.status}
-                            onChange={(e) => handleQuickStatusChange(app.id, e.target.value)}
-                            className={`px-2.5 py-1.5 bg-forest-dark border rounded-lg text-[10px] font-extrabold uppercase tracking-wider cursor-pointer transition-all hover:bg-forest-light outline-none ${
-                              app.status === 'Approved' ? 'text-green-400 border-green-500/30' :
-                              app.status === 'Rejected' ? 'text-red-400 border-red-500/30' :
-                              'text-yellow-400 border-yellow-500/30'
-                            }`}
-                          >
-                            <option value="Pending" className="bg-forest-dark text-yellow-400">For Review</option>
-                            <option value="Approved" className="bg-forest-dark text-green-400">Approved</option>
-                            <option value="Rejected" className="bg-forest-dark text-red-400">Disapproved</option>
-                          </select>
-                        ) : (
-                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border uppercase tracking-wider ${statusBadges[app.status]}`}>
-                            {app.status === 'Pending' ? 'For Review' : (app.status === 'Approved' ? 'Approved' : 'Disapproved')}
-                          </span>
-                        )}
-                      </td>
-                      {(user?.role === 'encoder' || user?.role === 'admin') && (
-                        <td className="py-4 px-6 text-right flex justify-end gap-2">
-                          <button
-                            onClick={() => handleOpenEdit(app)}
-                            className="p-1.5 border border-white/10 rounded text-white/60 hover:text-gold hover:border-gold/30 transition-all cursor-pointer"
-                            title="Edit profile & evaluations"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                          </button>
-                          {user?.role === 'admin' && (
-                            <button
-                              onClick={() => handleDeleteScholar(app.id, app.student_full_name)}
-                              className="p-1.5 border border-red-500/25 rounded text-red-400 hover:bg-red-500/10 hover:border-red-500/40 transition-all cursor-pointer"
-                              title="Delete scholar record"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                            </button>
+                    return (
+                      <tr key={app.id} className="hover:bg-white/5 transition-all">
+                        <td className="py-4 px-6 font-semibold text-gold font-mono">{app.application_no}</td>
+                        <td className="py-4 px-6">
+                          <span className="font-semibold text-white">{app.student_full_name}</span>
+                          <p className="text-xs text-white/40 mt-0.5">{app.email} • {app.contact_number}</p>
+                        </td>
+                        <td className="py-4 px-6">
+                          <span>{bdate}</span>
+                          <p className="text-xs text-white/40 mt-0.5">{app.sex}</p>
+                        </td>
+                        <td className="py-4 px-6 text-white/70">{app.barangay}</td>
+                        <td className="py-4 px-6">
+                          <span>{app.school}</span>
+                          <p className="text-xs text-white/40 mt-0.5">SY {app.school_year}</p>
+                        </td>
+                        <td className="py-4 px-6">
+                          {circs.length > 0 ? (
+                            <div className="flex flex-wrap gap-1 max-w-[150px]">
+                              {circs.map(c => (
+                                <span key={c} className="px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-[9px] font-bold text-white/60">
+                                  {c}
+                                </span>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-white/30 text-xs">None</span>
                           )}
                         </td>
-                      )}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                        <td className="py-4 px-6">
+                          {(user?.role === 'encoder' || user?.role === 'admin') ? (
+                            <select
+                              value={app.status}
+                              onChange={(e) => handleQuickStatusChange(app.id, e.target.value)}
+                              className={`px-2.5 py-1.5 bg-forest-dark border rounded-lg text-[10px] font-extrabold uppercase tracking-wider cursor-pointer transition-all hover:bg-forest-light outline-none ${
+                                app.status === 'Approved' ? 'text-green-400 border-green-500/30' :
+                                app.status === 'Rejected' ? 'text-red-400 border-red-500/30' :
+                                'text-yellow-400 border-yellow-500/30'
+                              }`}
+                            >
+                              <option value="Pending" className="bg-forest-dark text-yellow-400">For Review</option>
+                              <option value="Approved" className="bg-forest-dark text-green-400">Approved</option>
+                              <option value="Rejected" className="bg-forest-dark text-red-400">Disapproved</option>
+                            </select>
+                          ) : (
+                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border uppercase tracking-wider ${statusBadges[app.status]}`}>
+                              {app.status === 'Pending' ? 'For Review' : (app.status === 'Approved' ? 'Approved' : 'Disapproved')}
+                            </span>
+                          )}
+                        </td>
+                        {(user?.role === 'encoder' || user?.role === 'admin') && (
+                          <td className="py-4 px-6 text-right flex justify-end gap-2">
+                            <button
+                              onClick={() => handleOpenEdit(app)}
+                              className="p-1.5 border border-white/10 rounded text-white/60 hover:text-gold hover:border-gold/30 transition-all cursor-pointer"
+                              title="Edit profile & evaluations"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                            </button>
+                            {user?.role === 'admin' && (
+                              <button
+                                onClick={() => handleDeleteScholar(app.id, app.student_full_name)}
+                                className="p-1.5 border border-red-500/25 rounded text-red-400 hover:bg-red-500/10 hover:border-red-500/40 transition-all cursor-pointer"
+                                title="Delete scholar record"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                              </button>
+                            )}
+                          </td>
+                        )}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination Controls & Total Records */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-white/10 text-xs text-white/70">
+              <div>
+                Showing <span className="font-bold text-gold">{totalRecords > 0 ? (page - 1) * limit + 1 : 0}</span> to{' '}
+                <span className="font-bold text-gold">{Math.min(page * limit, totalRecords)}</span> of{' '}
+                <span className="font-bold text-gold">{totalRecords}</span> scholars
+              </div>
+
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="px-3 py-1.5 rounded-lg border border-gold/20 hover:bg-gold/10 text-gold disabled:opacity-30 disabled:pointer-events-none transition-all cursor-pointer font-bold text-xs"
+                >
+                  Previous
+                </button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+                  .map((p, idx, arr) => {
+                    const prev = arr[idx - 1];
+                    const showEllipsis = prev && p - prev > 1;
+                    return (
+                      <React.Fragment key={p}>
+                        {showEllipsis && <span className="px-1 text-white/30">...</span>}
+                        <button
+                          onClick={() => setPage(p)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                            page === p
+                              ? 'bg-gold-gradient text-forest-dark shadow-md'
+                              : 'border border-white/10 hover:bg-white/5 text-white/70'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      </React.Fragment>
+                    );
+                  })}
+
+                <button
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages || totalPages === 0}
+                  className="px-3 py-1.5 rounded-lg border border-gold/20 hover:bg-gold/10 text-gold disabled:opacity-30 disabled:pointer-events-none transition-all cursor-pointer font-bold text-xs"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
           </div>
-          );
-        })()}
+        )}
       </div>
 
       {/* Form Modal (handles both Create and Edit) */}

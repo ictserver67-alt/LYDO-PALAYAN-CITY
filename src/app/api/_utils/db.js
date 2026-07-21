@@ -166,20 +166,40 @@ function resolveMockQuery(text, params = []) {
     return { rows: app ? [app] : [], rowCount: app ? 1 : 0 };
   }
 
-  // 6. SELECT * FROM scholar_applications (Admin list filterable by Barangay/Status)
-  if (sql.startsWith('SELECT * FROM scholar_applications')) {
+  // 6. SELECT COUNT(*)::int as total FROM scholar_applications / SELECT * FROM scholar_applications
+  if (sql.includes('FROM scholar_applications')) {
     let filtered = [...mockApplications];
-    // Simple filter mapping based on parameters
-    if (params.length > 0) {
-      if (sql.includes('barangay = $1')) {
-        filtered = filtered.filter(a => a.barangay === params[0]);
-        if (params[1]) {
-          filtered = filtered.filter(a => a.status === params[1]);
+    
+    params.forEach(p => {
+      if (typeof p === 'string') {
+        if (p.startsWith('%') && p.endsWith('%')) {
+          const q = p.slice(1, -1).toLowerCase();
+          filtered = filtered.filter(a => 
+            (a.student_full_name || '').toLowerCase().includes(q) ||
+            (a.application_no || '').toLowerCase().includes(q) ||
+            (a.school || '').toLowerCase().includes(q) ||
+            (a.barangay || '').toLowerCase().includes(q) ||
+            (a.email || '').toLowerCase().includes(q) ||
+            (a.contact_number || '').toLowerCase().includes(q)
+          );
+        } else if (BARANGAYS.includes(p)) {
+          filtered = filtered.filter(a => a.barangay === p);
+        } else if (['Pending', 'Approved', 'Rejected'].includes(p)) {
+          filtered = filtered.filter(a => a.status === p);
         }
-      } else if (sql.includes('status = $1')) {
-        filtered = filtered.filter(a => a.status === params[0]);
       }
+    });
+
+    if (sql.includes('COUNT(*)')) {
+      return { rows: [{ total: filtered.length }], rowCount: 1 };
     }
+
+    if (sql.includes('LIMIT') && sql.includes('OFFSET')) {
+      const limit = typeof params[params.length - 2] === 'number' ? params[params.length - 2] : 10;
+      const offset = typeof params[params.length - 1] === 'number' ? params[params.length - 1] : 0;
+      filtered = filtered.slice(offset, offset + limit);
+    }
+
     return { rows: filtered, rowCount: filtered.length };
   }
 
