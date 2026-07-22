@@ -44,6 +44,10 @@ function getPool() {
           }
         });
       }
+      // Run automatic migration to add 'appeared' column if not exists
+      global._postgresPool.query('ALTER TABLE scholar_applications ADD COLUMN IF NOT EXISTS appeared BOOLEAN DEFAULT FALSE')
+        .then(() => console.log('Database migration completed: added appeared column to scholar_applications if missing.'))
+        .catch(err => console.error('Database migration error for appeared column:', err));
     }
     pool = global._postgresPool;
   }
@@ -444,7 +448,8 @@ function resolveMockQuery(text, params = []) {
       special_circumstances_specify: params[13],
       status: params[14],
       evaluated_by: params[15],
-      evaluated_at: new Date().toISOString()
+      evaluated_at: new Date().toISOString(),
+      appeared: false
     };
     mockApplications.push(newApp);
     return { rows: [{ application_no: tempNo }], rowCount: 1 };
@@ -485,6 +490,15 @@ function resolveMockQuery(text, params = []) {
     const app = mockApplications.find(a => a.id === params[1]);
     if (app) {
       app.status = params[0];
+    }
+    return { rows: [], rowCount: 1 };
+  }
+
+  // Attendance update: UPDATE scholar_applications SET appeared = $1 WHERE id = $2
+  if (sql.includes('UPDATE scholar_applications SET appeared = $1 WHERE id = $2')) {
+    const app = mockApplications.find(a => a.id === params[1]);
+    if (app) {
+      app.appeared = params[0] === true;
     }
     return { rows: [], rowCount: 1 };
   }

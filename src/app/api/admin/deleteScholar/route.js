@@ -6,9 +6,9 @@ import { reindexScholars } from '../../_utils/reindex';
 export async function POST(req) {
   try {
     const session = getSessionFromRequest(req);
-    // Only admins can delete scholar records
-    if (!session || session.role !== 'admin') {
-      return NextResponse.json({ error: 'ACCESS_DENIED: Access restricted to admins only.' }, { status: 403 });
+    // Only admins and encoders can delete scholar records
+    if (!session || (session.role !== 'admin' && session.role !== 'encoder')) {
+      return NextResponse.json({ error: 'ACCESS_DENIED: Access restricted to admins and encoders.' }, { status: 403 });
     }
 
     const { id } = await req.json();

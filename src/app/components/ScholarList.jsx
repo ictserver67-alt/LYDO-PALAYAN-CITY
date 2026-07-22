@@ -91,6 +91,25 @@ export default function ScholarList({ user }) {
     }
   };
 
+  const handleToggleAttendance = async (id, appearedVal) => {
+    try {
+      setApplications(prev => prev.map(app => app.id === id ? { ...app, appeared: appearedVal } : app));
+
+      const res = await fetch('/api/admin/updateScholarAttendance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, appeared: appearedVal })
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to update attendance status');
+      }
+    } catch (err) {
+      alert(err.message);
+      fetchApplications();
+    }
+  };
+
   const handleOpenEdit = (app) => {
     setSelectedApp(app);
     setIsModalOpen(true);
@@ -298,6 +317,7 @@ export default function ScholarList({ user }) {
                     <th className="py-4 px-6">Barangay</th>
                     <th className="py-4 px-6">School Details</th>
                     <th className="py-4 px-6">Circumstances</th>
+                    <th className="py-4 px-6 text-center">Appeared?</th>
                     <th className="py-4 px-6">Status</th>
                     {(user?.role === 'encoder' || user?.role === 'admin') && <th className="py-4 px-6 text-right">Actions</th>}
                   </tr>
@@ -348,6 +368,24 @@ export default function ScholarList({ user }) {
                             <span className="text-white/30 text-xs">None</span>
                           )}
                         </td>
+                        <td className="py-4 px-6 text-center">
+                          {(user?.role === 'encoder' || user?.role === 'admin') ? (
+                            <label className="inline-flex items-center justify-center cursor-pointer p-1 rounded-md hover:bg-white/5 transition-all">
+                              <input
+                                type="checkbox"
+                                checked={app.appeared || false}
+                                onChange={(e) => handleToggleAttendance(app.id, e.target.checked)}
+                                className="w-4.5 h-4.5 rounded border-white/20 bg-forest-dark text-gold focus:ring-0 focus:ring-offset-0 cursor-pointer accent-gold transition-all"
+                              />
+                            </label>
+                          ) : (
+                            app.appeared ? (
+                              <span className="text-[10px] font-bold text-gold bg-gold/10 border border-gold/20 px-2.5 py-1 rounded uppercase tracking-wider">Present</span>
+                            ) : (
+                              <span className="text-[10px] text-white/30 border border-white/5 px-2.5 py-1 rounded uppercase tracking-wider">Absent</span>
+                            )
+                          )}
+                        </td>
                         <td className="py-4 px-6">
                           {(user?.role === 'encoder' || user?.role === 'admin') ? (
                             <select
@@ -378,7 +416,7 @@ export default function ScholarList({ user }) {
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                             </button>
-                            {user?.role === 'admin' && (
+                            {(user?.role === 'admin' || user?.role === 'encoder') && (
                               <button
                                 onClick={() => handleDeleteScholar(app.id, app.student_full_name)}
                                 className="p-1.5 border border-red-500/25 rounded text-red-400 hover:bg-red-500/10 hover:border-red-500/40 transition-all cursor-pointer"
