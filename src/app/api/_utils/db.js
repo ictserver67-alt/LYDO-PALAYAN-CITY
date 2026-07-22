@@ -194,6 +194,24 @@ function resolveMockQuery(text, params = []) {
       }
     });
 
+    if (sql.includes('COUNT(CASE WHEN appeared = true')) {
+      const total_scholars = filtered.length;
+      const appeared = filtered.filter(a => a.appeared === true).length;
+      const pending = filtered.filter(a => a.status === 'Pending').length;
+      const approved = filtered.filter(a => a.status === 'Approved').length;
+      const rejected = filtered.filter(a => a.status === 'Rejected').length;
+      return {
+        rows: [{
+          total_scholars,
+          appeared,
+          pending,
+          approved,
+          rejected
+        }],
+        rowCount: 1
+      };
+    }
+
     if (sql.includes('COUNT(*)')) {
       return { rows: [{ total: filtered.length }], rowCount: 1 };
     }

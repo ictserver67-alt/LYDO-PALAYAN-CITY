@@ -14,6 +14,13 @@ export default function ScholarList({ user }) {
   const [limit, setLimit] = useState(10);
   const [totalRecords, setTotalRecords] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+  const [analytics, setAnalytics] = useState({
+    total_scholars: 0,
+    appeared: 0,
+    pending: 0,
+    approved: 0,
+    rejected: 0
+  });
 
   // Modal States
   const [selectedApp, setSelectedApp] = useState(null);
@@ -55,6 +62,9 @@ export default function ScholarList({ user }) {
           setApplications(data.applications || []);
           setTotalRecords(data.total || 0);
           setTotalPages(data.totalPages || 1);
+          if (data.analytics) {
+            setAnalytics(data.analytics);
+          }
         }
       }
     } catch (err) {
@@ -204,6 +214,54 @@ export default function ScholarList({ user }) {
           <p className="text-xs text-white/50 mt-1">Please write this number down on the physical application form.</p>
         </div>
       )}
+
+      {/* Analytics Bento Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        {/* Total Scholars */}
+        <div className="glass-panel p-4 rounded-xl border border-white/5 flex flex-col gap-1.5 relative overflow-hidden group hover:border-gold/20 transition-all duration-300">
+          <span className="text-[10px] text-white/40 uppercase font-semibold tracking-wider">Total Scholars</span>
+          <div className="text-2xl font-black text-white group-hover:text-gold transition-colors">{analytics.total_scholars}</div>
+          <div className="absolute right-3 bottom-3 text-white/5 group-hover:text-white/10 transition-colors pointer-events-none">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+          </div>
+        </div>
+
+        {/* Present Attendees */}
+        <div className="glass-panel p-4 rounded-xl border border-gold/15 flex flex-col gap-1.5 bg-gold/[0.02] relative overflow-hidden group hover:border-gold/30 transition-all duration-300">
+          <span className="text-[10px] text-gold/60 uppercase font-semibold tracking-wider">Present (Attendees)</span>
+          <div className="text-2xl font-black text-gold">{analytics.appeared}</div>
+          <div className="absolute right-3 bottom-3 text-gold/5 group-hover:text-gold/10 transition-colors pointer-events-none">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          </div>
+        </div>
+
+        {/* For Review */}
+        <div className="glass-panel p-4 rounded-xl border border-yellow-500/10 flex flex-col gap-1.5 bg-yellow-500/[0.01] relative overflow-hidden group hover:border-yellow-500/25 transition-all duration-300">
+          <span className="text-[10px] text-yellow-400/60 uppercase font-semibold tracking-wider">For Review</span>
+          <div className="text-2xl font-black text-yellow-400">{analytics.pending}</div>
+          <div className="absolute right-3 bottom-3 text-yellow-500/5 group-hover:text-yellow-500/10 transition-colors pointer-events-none">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          </div>
+        </div>
+
+        {/* Approved */}
+        <div className="glass-panel p-4 rounded-xl border border-green-500/10 flex flex-col gap-1.5 bg-green-500/[0.01] relative overflow-hidden group hover:border-green-500/25 transition-all duration-300">
+          <span className="text-[10px] text-green-400/60 uppercase font-semibold tracking-wider">Approved</span>
+          <div className="text-2xl font-black text-green-400">{analytics.approved}</div>
+          <div className="absolute right-3 bottom-3 text-green-500/5 group-hover:text-green-500/10 transition-colors pointer-events-none">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
+          </div>
+        </div>
+
+        {/* Disapproved */}
+        <div className="glass-panel p-4 rounded-xl border border-red-500/10 flex flex-col gap-1.5 bg-red-500/[0.01] relative overflow-hidden group hover:border-red-500/25 transition-all duration-300">
+          <span className="text-[10px] text-red-400/60 uppercase font-semibold tracking-wider">Disapproved</span>
+          <div className="text-2xl font-black text-red-400">{analytics.rejected}</div>
+          <div className="absolute right-3 bottom-3 text-red-500/5 group-hover:text-red-500/10 transition-colors pointer-events-none">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          </div>
+        </div>
+      </div>
 
       {/* Filters Box */}
       <div className="glass-panel rounded-xl p-5 border border-gold/15 flex flex-wrap gap-4 items-center">
