@@ -216,7 +216,7 @@ export default function ScholarList({ user }) {
       )}
 
       {/* Analytics Bento Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
         {/* Total Scholars */}
         <div className="glass-panel p-4 rounded-xl border border-white/5 flex flex-col gap-1.5 relative overflow-hidden group hover:border-gold/20 transition-all duration-300">
           <span className="text-[10px] text-white/40 uppercase font-semibold tracking-wider">Total Scholars</span>
@@ -259,6 +259,15 @@ export default function ScholarList({ user }) {
           <div className="text-2xl font-black text-red-400">{analytics.rejected}</div>
           <div className="absolute right-3 bottom-3 text-red-500/5 group-hover:text-red-500/10 transition-colors pointer-events-none">
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          </div>
+        </div>
+
+        {/* Scholarship Budget */}
+        <div className="glass-panel p-4 rounded-xl border border-blue-500/10 flex flex-col gap-1.5 bg-blue-500/[0.01] relative overflow-hidden group hover:border-blue-500/25 transition-all duration-300">
+          <span className="text-[10px] text-blue-400/60 uppercase font-semibold tracking-wider">Scholarship Budget</span>
+          <div className="text-2xl font-black text-blue-400">₱5M</div>
+          <div className="absolute right-3 bottom-3 text-blue-500/5 group-hover:text-blue-500/10 transition-colors pointer-events-none">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
           </div>
         </div>
       </div>

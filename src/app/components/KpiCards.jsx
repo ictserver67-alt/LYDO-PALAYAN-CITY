@@ -39,7 +39,7 @@ export default function KpiCards({ data }) {
     },
     {
       title: 'Annual Budget',
-      value: '₱4,500,000.00',
+      value: '₱28,000,000.00',
       description: 'Static Annual Allocation',
       color: 'border-blue-500/25 text-blue-400',
       icon: (
