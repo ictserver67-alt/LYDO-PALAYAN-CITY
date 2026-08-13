@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSessionFromRequest } from '../../_utils/session';
 import { query } from '../../_utils/db';
+import * as XLSX from 'xlsx';
 
 export async function GET(req) {
   try {
@@ -11,19 +12,30 @@ export async function GET(req) {
 
     const { searchParams } = new URL(req.url);
     const scope = searchParams.get('scope') || 'all'; // 'all' or 'filtered'
-    const statusFilter = searchParams.get('statusFilter') || 'all'; // 'all', 'present', 'pending', 'approved', 'rejected'
-    const barangay = searchParams.get('barangay');
+    
+    // Custom filter selections
+    const statusFilter = searchParams.get('statusFilter') || 'all'; 
+    const attendanceFilter = searchParams.get('attendanceFilter') || 'all'; 
+    const barangayFilter = searchParams.get('barangayFilter') || 'All';
+    const circumstanceFilter = searchParams.get('circumstanceFilter') || 'all';
+    
+    // Search / Main Filter params (only if scope is filtered)
     const search = searchParams.get('search');
+    const mainBarangay = searchParams.get('mainBarangay');
+    const mainStatus = searchParams.get('mainStatus');
 
     // 1. Fetch all applications
     const sql = 'SELECT * FROM scholar_applications ORDER BY application_no ASC';
     const res = await query(sql);
     let rows = res.rows || [];
 
-    // 2. Filter in JS
+    // 2. Apply main filters (if scope is 'filtered')
     if (scope === 'filtered') {
-      if (barangay && barangay !== 'All') {
-        rows = rows.filter(r => r.barangay === barangay);
+      if (mainBarangay && mainBarangay !== 'All') {
+        rows = rows.filter(r => r.barangay === mainBarangay);
+      }
+      if (mainStatus && mainStatus !== 'All') {
+        rows = rows.filter(r => r.status === mainStatus);
       }
       if (search && search.trim() !== '') {
         const q = search.trim().toLowerCase();
@@ -38,53 +50,54 @@ export async function GET(req) {
       }
     }
 
-    // Filter by export category
-    if (statusFilter === 'present') {
-      rows = rows.filter(r => r.appeared === true);
-    } else if (statusFilter === 'pending') {
-      rows = rows.filter(r => r.status === 'Pending');
-    } else if (statusFilter === 'approved') {
-      rows = rows.filter(r => r.status === 'Approved');
-    } else if (statusFilter === 'rejected') {
-      rows = rows.filter(r => r.status === 'Rejected');
+    // 3. Apply custom export filters
+    // Barangay filter
+    if (barangayFilter !== 'All') {
+      rows = rows.filter(r => r.barangay === barangayFilter);
     }
 
-    // 3. Build CSV string
-    const headers = [
-      'Application No',
-      'Date Filed',
-      'Full Name',
-      'Date of Birth',
-      'Sex',
-      'Barangay',
-      'Contact Number',
-      'Email',
-      'School',
-      'School Year',
-      'Solo Parent Beneficiary',
-      'Orphan',
-      'PWD',
-      'IP (Indigenous People)',
-      'Out of School Youth',
-      'Special Circumstances Specify',
-      'Status',
-      'Attended (Appeared)',
-      'Evaluated By',
-      'Evaluated At'
-    ];
-
-    const escapeCsvCell = (val) => {
-      if (val === null || val === undefined) return '';
-      let str = String(val);
-      if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
-        str = '"' + str.replace(/"/g, '""') + '"';
+    // Status filter
+    if (statusFilter !== 'all') {
+      const statusMap = {
+        pending: 'Pending',
+        approved: 'Approved',
+        rejected: 'Rejected'
+      };
+      if (statusMap[statusFilter]) {
+        rows = rows.filter(r => r.status === statusMap[statusFilter]);
       }
-      return str;
-    };
+    }
 
-    const csvRows = [headers.join(',')];
+    // Attendance filter
+    if (attendanceFilter === 'present') {
+      rows = rows.filter(r => r.appeared === true);
+    } else if (attendanceFilter === 'absent') {
+      rows = rows.filter(r => r.appeared !== true);
+    }
 
-    for (const r of rows) {
+    // Circumstances filter
+    if (circumstanceFilter === 'solo_parent') {
+      rows = rows.filter(r => r.is_solo_parent_beneficiary === true);
+    } else if (circumstanceFilter === 'orphan') {
+      rows = rows.filter(r => r.is_orphan === true);
+    } else if (circumstanceFilter === 'pwd') {
+      rows = rows.filter(r => r.is_pwd === true);
+    } else if (circumstanceFilter === 'ip') {
+      rows = rows.filter(r => r.is_ip === true);
+    } else if (circumstanceFilter === 'osy') {
+      rows = rows.filter(r => r.is_out_of_school_youth === true);
+    } else if (circumstanceFilter === 'any') {
+      rows = rows.filter(r => 
+        r.is_solo_parent_beneficiary === true ||
+        r.is_orphan === true ||
+        r.is_pwd === true ||
+        r.is_ip === true ||
+        r.is_out_of_school_youth === true
+      );
+    }
+
+    // 4. Map rows to Excel-friendly JSON objects
+    const excelData = rows.map(r => {
       const bdate = r.date_of_birth ? new Date(r.date_of_birth).toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
@@ -100,45 +113,73 @@ export async function GET(req) {
         timeZone: 'Asia/Manila'
       }) : '—';
 
-      const rowValues = [
-        r.application_no,
-        dateFiled,
-        r.student_full_name,
-        bdate,
-        r.sex,
-        r.barangay,
-        r.contact_number,
-        r.email,
-        r.school,
-        r.school_year,
-        r.is_solo_parent_beneficiary ? 'Yes' : 'No',
-        r.is_orphan ? 'Yes' : 'No',
-        r.is_pwd ? 'Yes' : 'No',
-        r.is_ip ? 'Yes' : 'No',
-        r.is_out_of_school_youth ? 'Yes' : 'No',
-        r.special_circumstances_specify || '',
-        r.status,
-        r.appeared ? 'Yes' : 'No',
-        r.evaluated_by || '—',
-        evaluatedAt
-      ];
+      // Circumstances list
+      const circs = [];
+      if (r.is_solo_parent_beneficiary) circs.push('Solo Parent');
+      if (r.is_orphan) circs.push('Orphan');
+      if (r.is_pwd) circs.push('PWD');
+      if (r.is_ip) circs.push('IP');
+      if (r.is_out_of_school_youth) circs.push('OSY');
 
-      csvRows.push(rowValues.map(escapeCsvCell).join(','));
-    }
+      return {
+        'Application No': r.application_no || '',
+        'Date Filed': dateFiled,
+        'Full Name': r.student_full_name || '',
+        'Date of Birth': bdate,
+        'Sex': r.sex || '',
+        'Barangay': r.barangay || '',
+        'Contact Number': r.contact_number || '',
+        'Email': r.email || '',
+        'School': r.school || '',
+        'School Year': r.school_year || '',
+        'Attended (Appeared)': r.appeared ? 'YES' : 'NO',
+        'Status': r.status === 'Pending' ? 'For Review' : (r.status === 'Approved' ? 'Approved' : 'Disapproved'),
+        'Special Circumstances': circs.join(', ') || 'None',
+        'Circumstances Specified': r.special_circumstances_specify || '',
+        'Evaluated By': r.evaluated_by || '—',
+        'Evaluated At': evaluatedAt
+      };
+    });
 
-    const csvContent = csvRows.join('\n');
+    // 5. Generate Workbook using SheetJS
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Scholars');
 
-    // Return as downloadable file attachment
-    return new Response(csvContent, {
+    // Auto-fit column widths
+    const colWidths = [
+      { wch: 15 }, // Application No
+      { wch: 22 }, // Date Filed
+      { wch: 26 }, // Full Name
+      { wch: 14 }, // Date of Birth
+      { wch: 8 },  // Sex
+      { wch: 16 }, // Barangay
+      { wch: 16 }, // Contact Number
+      { wch: 25 }, // Email
+      { wch: 25 }, // School
+      { wch: 12 }, // School Year
+      { wch: 20 }, // Attended (Appeared)
+      { wch: 14 }, // Status
+      { wch: 25 }, // Special Circumstances
+      { wch: 25 }, // Circumstances Specified
+      { wch: 15 }, // Evaluated By
+      { wch: 22 }  // Evaluated At
+    ];
+    worksheet['!cols'] = colWidths;
+
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
+
+    // 6. Return response
+    return new Response(excelBuffer, {
       status: 200,
       headers: {
-        'Content-Type': 'text/csv; charset=utf-8',
-        'Content-Disposition': `attachment; filename="scholars_${statusFilter}_export_${new Date().toISOString().slice(0, 10)}.csv"`
+        'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'Content-Disposition': `attachment; filename="scholars_export_${new Date().toISOString().slice(0, 10)}.xlsx"`
       }
     });
 
   } catch (err) {
-    console.error('exportScholars API error:', err);
-    return NextResponse.json({ error: 'Failed to export scholar data.' }, { status: 500 });
+    console.error('exportScholars Excel API error:', err);
+    return NextResponse.json({ error: 'Failed to export scholar data in Excel format.' }, { status: 500 });
   }
 }

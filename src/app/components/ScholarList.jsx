@@ -30,6 +30,9 @@ export default function ScholarList({ user }) {
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [exportScope, setExportScope] = useState('all');
   const [exportStatus, setExportStatus] = useState('all');
+  const [exportBarangay, setExportBarangay] = useState('All');
+  const [exportCircumstance, setExportCircumstance] = useState('all');
+  const [exportAttendance, setExportAttendance] = useState('all');
 
   // Reset page to 1 whenever filters, search, or row limit change
   useEffect(() => {
@@ -161,15 +164,20 @@ export default function ScholarList({ user }) {
     const params = new URLSearchParams();
     params.append('scope', exportScope);
     params.append('statusFilter', exportStatus);
+    params.append('attendanceFilter', exportAttendance);
+    params.append('barangayFilter', exportBarangay);
+    params.append('circumstanceFilter', exportCircumstance);
+    
     if (exportScope === 'filtered') {
-      if (filterBarangay !== 'All') params.append('barangay', filterBarangay);
+      params.append('mainBarangay', filterBarangay);
+      params.append('mainStatus', filterStatus);
       if (searchQuery.trim()) params.append('search', searchQuery.trim());
     }
 
     const downloadUrl = `/api/admin/exportScholars?${params.toString()}`;
     const link = document.createElement('a');
     link.href = downloadUrl;
-    link.setAttribute('download', `scholars_export_${exportStatus}.csv`);
+    link.setAttribute('download', `scholars_export_${exportStatus}_${new Date().toISOString().slice(0, 10)}.xlsx`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -681,12 +689,12 @@ export default function ScholarList({ user }) {
       {/* Export Modal */}
       {isExportModalOpen && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-          <div className="glass-panel w-full max-w-md rounded-2xl border border-gold/20 p-6 flex flex-col gap-5 animate-in zoom-in-95 duration-200">
+          <div className="glass-panel w-full max-w-lg rounded-2xl border border-gold/20 p-6 flex flex-col gap-4.5 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             {/* Title */}
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                <h3 className="text-sm font-extrabold text-white uppercase tracking-wider">Export Scholar Directory</h3>
+                <svg className="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2a4 4 0 00-4-4H5m10 10v-2a4 4 0 00-4-4H9m6 4v-2a4 4 0 00-4-4h-3M12 3v9m0 0l-3-3m3 3l3-3" /></svg>
+                <h3 className="text-sm font-extrabold text-white uppercase tracking-wider">Export to Excel (.xlsx)</h3>
               </div>
               <button 
                 onClick={() => setIsExportModalOpen(false)}
@@ -698,7 +706,7 @@ export default function ScholarList({ user }) {
 
             {/* Scope selection */}
             <div className="flex flex-col gap-2">
-              <span className="text-[10px] text-white/50 uppercase font-semibold">1. Select Scope</span>
+              <span className="text-[10px] text-white/50 uppercase font-semibold">1. Select Base Dataset</span>
               <div className="grid grid-cols-2 gap-3">
                 <label className={`p-3 rounded-lg border cursor-pointer flex flex-col gap-1 transition-all ${
                   exportScope === 'all' 
@@ -714,7 +722,7 @@ export default function ScholarList({ user }) {
                     className="sr-only"
                   />
                   <span className="text-xs font-bold">Overall Database</span>
-                  <span className="text-[9px] opacity-70">Exports all records matching selected filters globally</span>
+                  <span className="text-[9px] opacity-70">Query all registered records globally before custom filters</span>
                 </label>
 
                 <label className={`p-3 rounded-lg border cursor-pointer flex flex-col gap-1 transition-all ${
@@ -732,31 +740,88 @@ export default function ScholarList({ user }) {
                   />
                   <span className="text-xs font-bold">Filtered View Only</span>
                   <span className="text-[9px] opacity-70">
-                    Barangay: {filterBarangay === 'All' ? 'All' : filterBarangay}
-                    {searchQuery && ` • Search: "${searchQuery.slice(0, 10)}..."`}
+                    Main List Filter: {filterBarangay === 'All' ? 'All' : filterBarangay} • {filterStatus}
                   </span>
                 </label>
               </div>
             </div>
 
-            {/* Status / Category selection */}
-            <div className="flex flex-col gap-2">
-              <span className="text-[10px] text-white/50 uppercase font-semibold">2. Select Filter Category</span>
-              <select
-                value={exportStatus}
-                onChange={e => setExportStatus(e.target.value)}
-                className="input-field text-xs py-2.5 px-3 w-full cursor-pointer bg-forest-dark text-white"
-              >
-                <option value="all" className="bg-forest-dark text-white">📋 All Scholars (Overall)</option>
-                <option value="present" className="bg-forest-dark text-white">✨ Present / Attended Only</option>
-                <option value="pending" className="bg-forest-dark text-white">⏳ For Review (Pending) Only</option>
-                <option value="approved" className="bg-forest-dark text-white">✅ Approved Only</option>
-                <option value="rejected" className="bg-forest-dark text-white">❌ Disapproved (Rejected) Only</option>
-              </select>
+            <div className="border-t border-white/5 pt-3 flex flex-col gap-3">
+              <span className="text-[10px] text-white/50 uppercase font-semibold">2. Customize Export Filters</span>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Barangay Filter */}
+                <div className="flex flex-col gap-1">
+                  <span className="text-[10px] text-white/40 font-semibold">Filter by Barangay</span>
+                  <select
+                    value={exportBarangay}
+                    onChange={e => setExportBarangay(e.target.value)}
+                    className="input-field text-xs py-2 px-3 w-full cursor-pointer bg-forest-dark text-white"
+                  >
+                    <option value="All">All Barangays</option>
+                    {BARANGAYS.map(b => (
+                      <option key={b} value={b}>{b}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Circumstance Filter */}
+                <div className="flex flex-col gap-1">
+                  <span className="text-[10px] text-white/40 font-semibold">Filter by Special Circumstance</span>
+                  <select
+                    value={exportCircumstance}
+                    onChange={e => setExportCircumstance(e.target.value)}
+                    className="input-field text-xs py-2 px-3 w-full cursor-pointer bg-forest-dark text-white"
+                  >
+                    <option value="all">All Circumstances</option>
+                    <option value="solo_parent">Solo Parent Beneficiary</option>
+                    <option value="orphan">Orphan Only</option>
+                    <option value="pwd">PWD (Persons with Disability)</option>
+                    <option value="ip">IP (Indigenous People)</option>
+                    <option value="osy">OSY (Out of School Youth)</option>
+                    <option value="any">Any Special Circumstance (IP, OSY, etc.)</option>
+                  </select>
+                </div>
+
+                {/* Status Filter */}
+                <div className="flex flex-col gap-1">
+                  <span className="text-[10px] text-white/40 font-semibold">Filter by Scholar Status</span>
+                  <select
+                    value={exportStatus}
+                    onChange={e => setExportStatus(e.target.value)}
+                    className="input-field text-xs py-2 px-3 w-full cursor-pointer bg-forest-dark text-white"
+                  >
+                    <option value="all">All Statuses</option>
+                    <option value="pending">For Review (Pending) Only</option>
+                    <option value="approved">Approved Only</option>
+                    <option value="rejected">Disapproved (Rejected) Only</option>
+                  </select>
+                </div>
+
+                {/* Attendance Filter */}
+                <div className="flex flex-col gap-1">
+                  <span className="text-[10px] text-white/40 font-semibold">Filter by Attendance</span>
+                  <select
+                    value={exportAttendance}
+                    onChange={e => setExportAttendance(e.target.value)}
+                    className="input-field text-xs py-2 px-3 w-full cursor-pointer bg-forest-dark text-white"
+                  >
+                    <option value="all">All Attendance</option>
+                    <option value="present">Present (Marked Appeared) Only</option>
+                    <option value="absent">Absent Only</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Info Badge */}
+            <div className="p-3 bg-blue-500/10 border border-blue-500/25 rounded-lg flex items-start gap-2 text-[10px] text-blue-300">
+              <svg className="w-4 h-4 shrink-0 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <span>This export generates a native Microsoft Excel (.xlsx) file containing all scholar details (including contact info, attendance records, special circumstances, and evaluation status). Columns will be auto-sized for clean sheet display.</span>
             </div>
 
             {/* Actions */}
-            <div className="flex gap-3 justify-end mt-2 pt-3 border-t border-white/10">
+            <div className="flex gap-3 justify-end mt-1 pt-3 border-t border-white/10">
               <button
                 onClick={() => setIsExportModalOpen(false)}
                 className="px-4 py-2 border border-white/10 text-white/60 rounded-lg hover:text-white hover:bg-white/5 text-xs font-bold uppercase transition-all cursor-pointer"
@@ -767,7 +832,7 @@ export default function ScholarList({ user }) {
                 onClick={handleExport}
                 className="px-5 py-2 bg-gold-gradient text-forest-dark rounded-lg font-black text-xs uppercase tracking-wide hover:shadow-lg transition-all cursor-pointer"
               >
-                Generate Export
+                Export Excel
               </button>
             </div>
           </div>
