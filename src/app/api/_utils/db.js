@@ -411,6 +411,15 @@ function resolveMockQuery(text, params = []) {
     return { rows: [], rowCount: 1 };
   }
 
+  // 20b. UPDATE users SET password_hash = $1 WHERE username = $2
+  if (sql.includes('UPDATE users SET password_hash = $1 WHERE username = $2')) {
+    const user = mockUsers.find(u => u.username === params[1].toLowerCase().trim());
+    if (user) {
+      user.password_hash = params[0];
+    }
+    return { rows: [], rowCount: user ? 1 : 0 };
+  }
+
   // 21. INSERT INTO documents
   if (sql.includes('INSERT INTO documents')) {
     const newDoc = {
@@ -515,10 +524,16 @@ function resolveMockQuery(text, params = []) {
   // Attendance update: UPDATE scholar_applications SET appeared = $1 WHERE id = $2
   if (sql.includes('UPDATE scholar_applications SET appeared = $1 WHERE id = $2')) {
     const app = mockApplications.find(a => a.id === params[1]);
-    if (app) {
-      app.appeared = params[0] === true;
-    }
-    return { rows: [], rowCount: 1 };
+    if (app) app.appeared = params[0];
+    return { rows: [], rowCount: app ? 1 : 0 };
+  }
+
+  // Bulk attendance reset: UPDATE scholar_applications SET appeared = FALSE
+  if (sql.includes('UPDATE scholar_applications SET appeared = FALSE')) {
+    mockApplications.forEach(a => {
+      a.appeared = false;
+    });
+    return { rows: [], rowCount: mockApplications.length };
   }
 
   // Re-indexing: WITH reordered AS

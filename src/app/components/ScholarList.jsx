@@ -184,6 +184,25 @@ export default function ScholarList({ user }) {
     setIsExportModalOpen(false);
   };
 
+  const handleResetAttendance = async () => {
+    if (!confirm('WARNING: Are you sure you want to reset all scholar attendance records to unchecked? This will mark all scholars as Absent and cannot be undone.')) {
+      return;
+    }
+    try {
+      const res = await fetch('/api/admin/resetAttendance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Reset failed.');
+
+      alert(data.message || 'Attendance records reset successfully.');
+      fetchApplications();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   const getQrDataUrl = () => {
     let base = typeof window !== 'undefined' ? window.location.origin : 'https://lydo-palayan-city.vercel.app';
     if (base.includes('-projects.vercel.app') || base.includes('localhost') || base.includes('127.0.0.1')) {
@@ -397,6 +416,20 @@ export default function ScholarList({ user }) {
             Export
           </button>
         </div>
+
+        {/* Reset Attendance (Admin Only) */}
+        {user?.role === 'admin' && (
+          <div className="flex items-end self-end h-[38px]">
+            <button
+              onClick={handleResetAttendance}
+              className="px-4 py-2 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-300 font-black tracking-wider uppercase text-[10px] flex items-center gap-1.5 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] shrink-0"
+              title="Reset all scholar attendance records to unchecked"
+            >
+              <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+              Reset Attendance
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Directory Table */}
@@ -758,9 +791,9 @@ export default function ScholarList({ user }) {
                     onChange={e => setExportBarangay(e.target.value)}
                     className="input-field text-xs py-2 px-3 w-full cursor-pointer bg-forest-dark text-white"
                   >
-                    <option value="All">All Barangays</option>
+                    <option value="All" className="bg-forest-dark text-white">All Barangays</option>
                     {BARANGAYS.map(b => (
-                      <option key={b} value={b}>{b}</option>
+                      <option key={b} value={b} className="bg-forest-dark text-white">{b}</option>
                     ))}
                   </select>
                 </div>
@@ -773,13 +806,13 @@ export default function ScholarList({ user }) {
                     onChange={e => setExportCircumstance(e.target.value)}
                     className="input-field text-xs py-2 px-3 w-full cursor-pointer bg-forest-dark text-white"
                   >
-                    <option value="all">All Circumstances</option>
-                    <option value="solo_parent">Solo Parent Beneficiary</option>
-                    <option value="orphan">Orphan Only</option>
-                    <option value="pwd">PWD (Persons with Disability)</option>
-                    <option value="ip">IP (Indigenous People)</option>
-                    <option value="osy">OSY (Out of School Youth)</option>
-                    <option value="any">Any Special Circumstance (IP, OSY, etc.)</option>
+                    <option value="all" className="bg-forest-dark text-white">All Circumstances</option>
+                    <option value="solo_parent" className="bg-forest-dark text-white">Solo Parent Beneficiary</option>
+                    <option value="orphan" className="bg-forest-dark text-white">Orphan Only</option>
+                    <option value="pwd" className="bg-forest-dark text-white">PWD (Persons with Disability)</option>
+                    <option value="ip" className="bg-forest-dark text-white">IP (Indigenous People)</option>
+                    <option value="osy" className="bg-forest-dark text-white">OSY (Out of School Youth)</option>
+                    <option value="any" className="bg-forest-dark text-white">Any Special Circumstance (IP, OSY, etc.)</option>
                   </select>
                 </div>
 
@@ -791,10 +824,10 @@ export default function ScholarList({ user }) {
                     onChange={e => setExportStatus(e.target.value)}
                     className="input-field text-xs py-2 px-3 w-full cursor-pointer bg-forest-dark text-white"
                   >
-                    <option value="all">All Statuses</option>
-                    <option value="pending">For Review (Pending) Only</option>
-                    <option value="approved">Approved Only</option>
-                    <option value="rejected">Disapproved (Rejected) Only</option>
+                    <option value="all" className="bg-forest-dark text-white">All Statuses</option>
+                    <option value="pending" className="bg-forest-dark text-white">For Review (Pending) Only</option>
+                    <option value="approved" className="bg-forest-dark text-white">Approved Only</option>
+                    <option value="rejected" className="bg-forest-dark text-white">Disapproved (Rejected) Only</option>
                   </select>
                 </div>
 
@@ -806,9 +839,9 @@ export default function ScholarList({ user }) {
                     onChange={e => setExportAttendance(e.target.value)}
                     className="input-field text-xs py-2 px-3 w-full cursor-pointer bg-forest-dark text-white"
                   >
-                    <option value="all">All Attendance</option>
-                    <option value="present">Present (Marked Appeared) Only</option>
-                    <option value="absent">Absent Only</option>
+                    <option value="all" className="bg-forest-dark text-white">All Attendance</option>
+                    <option value="present" className="bg-forest-dark text-white">Present (Marked Appeared) Only</option>
+                    <option value="absent" className="bg-forest-dark text-white">Absent Only</option>
                   </select>
                 </div>
               </div>

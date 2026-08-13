@@ -86,6 +86,12 @@ export default function Page() {
   const [acctMsg, setAcctMsg] = useState({ text: '', isError: false });
   const [acctLoading, setAcctLoading] = useState(false);
 
+  // Admin Reset User Password States
+  const [resetPasswordTarget, setResetPasswordTarget] = useState(null);
+  const [resetNewPassword, setResetNewPassword] = useState('');
+  const [showResetPass, setShowResetPass] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
+
   // Categories list for uploader
   const DOCUMENT_CATEGORIES = [
     'Minutes of Meeting', 'Financial Report', 'Accomplishment Report', 
@@ -517,6 +523,32 @@ export default function Page() {
       fetchUsers();
     } catch (err) {
       alert(err.message);
+    }
+  };
+
+  const handleAdminResetPassword = async (e) => {
+    e.preventDefault();
+    if (!resetPasswordTarget || !resetNewPassword || resetNewPassword.length < 8) {
+      alert('Password must be at least 8 characters long.');
+      return;
+    }
+    setResetLoading(true);
+    try {
+      const res = await fetch('/api/admin/resetUserPassword', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targetUsername: resetPasswordTarget, newPassword: resetNewPassword })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Password reset failed.');
+
+      alert(data.message || 'Password has been reset successfully.');
+      setResetPasswordTarget(null);
+      setResetNewPassword('');
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -1389,6 +1421,17 @@ export default function Page() {
                                   </button>
                                 )}
                                 <button
+                                  onClick={() => {
+                                    setResetPasswordTarget(u.username);
+                                    setResetNewPassword('');
+                                    setShowResetPass(false);
+                                  }}
+                                  className="p-1.5 rounded bg-gold/10 border border-gold/25 hover:bg-gold hover:text-forest-dark text-gold transition-all cursor-pointer flex items-center justify-center shrink-0"
+                                  title="Reset Password"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                                </button>
+                                <button
                                   onClick={() => handleDeleteAccount(u.username)}
                                   disabled={u.username === user.username}
                                   className="p-1.5 rounded bg-red-500/10 border border-red-500/25 hover:bg-red-600 hover:text-white text-red-400 transition-all cursor-pointer disabled:opacity-20 disabled:pointer-events-none"
@@ -1437,6 +1480,70 @@ export default function Page() {
                 </table>
               </div>
             </div>
+            {/* Reset Password Modal */}
+            {resetPasswordTarget && (
+              <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[110] p-4 animate-in fade-in duration-200">
+                <div className="glass-panel w-full max-w-sm rounded-2xl border border-gold/20 p-6 flex flex-col gap-4 animate-in zoom-in-95 duration-200">
+                  <div className="flex justify-between items-center border-b border-white/10 pb-3">
+                    <div>
+                      <h3 className="text-sm font-extrabold text-white uppercase tracking-wider">Reset User Password</h3>
+                      <p className="text-[10px] text-white/50 mt-0.5">Target Account: <span className="font-mono text-gold font-bold">{resetPasswordTarget}</span></p>
+                    </div>
+                    <button 
+                      onClick={() => setResetPasswordTarget(null)}
+                      className="text-white/40 hover:text-white transition-all text-xl cursor-pointer"
+                    >
+                      &times;
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleAdminResetPassword} className="flex flex-col gap-4">
+                    <div className="flex flex-col">
+                      <label className="input-label text-[11px]">New Password *</label>
+                      <div className="relative">
+                        <input
+                          type={showResetPass ? "text" : "password"}
+                          required
+                          placeholder="Min 8 characters"
+                          value={resetNewPassword}
+                          onChange={e => setResetNewPassword(e.target.value)}
+                          className="input-field text-xs w-full pr-8"
+                          minLength={8}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowResetPass(!showResetPass)}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-white/50 hover:text-white cursor-pointer transition-all flex items-center justify-center p-1"
+                        >
+                          {showResetPass ? (
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" /></svg>
+                          ) : (
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 justify-end pt-3 border-t border-white/10">
+                      <button
+                        type="button"
+                        onClick={() => setResetPasswordTarget(null)}
+                        className="px-4 py-2 border border-white/10 text-white/60 rounded-lg hover:text-white hover:bg-white/5 text-xs font-bold uppercase transition-all cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={resetLoading}
+                        className="px-5 py-2 bg-gold-gradient text-forest-dark rounded-lg font-black text-xs uppercase tracking-wide hover:shadow-lg transition-all cursor-pointer"
+                      >
+                        {resetLoading ? 'Resetting...' : 'Save Password'}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </main>
