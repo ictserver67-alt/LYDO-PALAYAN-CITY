@@ -27,6 +27,9 @@ export default function ScholarList({ user }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [generatedAfs, setGeneratedAfs] = useState(null);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [exportScope, setExportScope] = useState('all');
+  const [exportStatus, setExportStatus] = useState('all');
 
   // Reset page to 1 whenever filters, search, or row limit change
   useEffect(() => {
@@ -152,6 +155,25 @@ export default function ScholarList({ user }) {
       console.error('Delete scholar error:', err);
       alert('An error occurred while deleting the record.');
     }
+  };
+
+  const handleExport = () => {
+    const params = new URLSearchParams();
+    params.append('scope', exportScope);
+    params.append('statusFilter', exportStatus);
+    if (exportScope === 'filtered') {
+      if (filterBarangay !== 'All') params.append('barangay', filterBarangay);
+      if (searchQuery.trim()) params.append('search', searchQuery.trim());
+    }
+
+    const downloadUrl = `/api/admin/exportScholars?${params.toString()}`;
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.setAttribute('download', `scholars_export_${exportStatus}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setIsExportModalOpen(false);
   };
 
   const getQrDataUrl = () => {
@@ -353,6 +375,18 @@ export default function ScholarList({ user }) {
             <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H18.2" />
             </svg>
+          </button>
+        </div>
+
+        {/* Export Button */}
+        <div className="flex items-end self-end h-[38px]">
+          <button
+            onClick={() => setIsExportModalOpen(true)}
+            className="px-4 py-2 rounded-lg bg-gold-gradient text-forest-dark font-black tracking-wider uppercase text-[10px] flex items-center gap-1.5 hover:shadow-lg transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+            title="Export database to CSV"
+          >
+            <svg className="w-4 h-4 text-forest-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+            Export
           </button>
         </div>
       </div>
@@ -639,6 +673,102 @@ export default function ScholarList({ user }) {
                   Print QR
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Export Modal */}
+      {isExportModalOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+          <div className="glass-panel w-full max-w-md rounded-2xl border border-gold/20 p-6 flex flex-col gap-5 animate-in zoom-in-95 duration-200">
+            {/* Title */}
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                <h3 className="text-sm font-extrabold text-white uppercase tracking-wider">Export Scholar Directory</h3>
+              </div>
+              <button 
+                onClick={() => setIsExportModalOpen(false)}
+                className="text-white/40 hover:text-white transition-all text-xl cursor-pointer"
+              >
+                &times;
+              </button>
+            </div>
+
+            {/* Scope selection */}
+            <div className="flex flex-col gap-2">
+              <span className="text-[10px] text-white/50 uppercase font-semibold">1. Select Scope</span>
+              <div className="grid grid-cols-2 gap-3">
+                <label className={`p-3 rounded-lg border cursor-pointer flex flex-col gap-1 transition-all ${
+                  exportScope === 'all' 
+                    ? 'border-gold/30 bg-gold/[0.03] text-white' 
+                    : 'border-white/5 bg-white/[0.01] text-white/60 hover:bg-white/5'
+                }`}>
+                  <input 
+                    type="radio" 
+                    name="exportScope" 
+                    value="all"
+                    checked={exportScope === 'all'}
+                    onChange={() => setExportScope('all')}
+                    className="sr-only"
+                  />
+                  <span className="text-xs font-bold">Overall Database</span>
+                  <span className="text-[9px] opacity-70">Exports all records matching selected filters globally</span>
+                </label>
+
+                <label className={`p-3 rounded-lg border cursor-pointer flex flex-col gap-1 transition-all ${
+                  exportScope === 'filtered' 
+                    ? 'border-gold/30 bg-gold/[0.03] text-white' 
+                    : 'border-white/5 bg-white/[0.01] text-white/60 hover:bg-white/5'
+                }`}>
+                  <input 
+                    type="radio" 
+                    name="exportScope" 
+                    value="filtered"
+                    checked={exportScope === 'filtered'}
+                    onChange={() => setExportScope('filtered')}
+                    className="sr-only"
+                  />
+                  <span className="text-xs font-bold">Filtered View Only</span>
+                  <span className="text-[9px] opacity-70">
+                    Barangay: {filterBarangay === 'All' ? 'All' : filterBarangay}
+                    {searchQuery && ` • Search: "${searchQuery.slice(0, 10)}..."`}
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            {/* Status / Category selection */}
+            <div className="flex flex-col gap-2">
+              <span className="text-[10px] text-white/50 uppercase font-semibold">2. Select Filter Category</span>
+              <select
+                value={exportStatus}
+                onChange={e => setExportStatus(e.target.value)}
+                className="input-field text-xs py-2.5 px-3 w-full cursor-pointer bg-forest-dark text-white"
+              >
+                <option value="all" className="bg-forest-dark text-white">📋 All Scholars (Overall)</option>
+                <option value="present" className="bg-forest-dark text-white">✨ Present / Attended Only</option>
+                <option value="pending" className="bg-forest-dark text-white">⏳ For Review (Pending) Only</option>
+                <option value="approved" className="bg-forest-dark text-white">✅ Approved Only</option>
+                <option value="rejected" className="bg-forest-dark text-white">❌ Disapproved (Rejected) Only</option>
+              </select>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 justify-end mt-2 pt-3 border-t border-white/10">
+              <button
+                onClick={() => setIsExportModalOpen(false)}
+                className="px-4 py-2 border border-white/10 text-white/60 rounded-lg hover:text-white hover:bg-white/5 text-xs font-bold uppercase transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleExport}
+                className="px-5 py-2 bg-gold-gradient text-forest-dark rounded-lg font-black text-xs uppercase tracking-wide hover:shadow-lg transition-all cursor-pointer"
+              >
+                Generate Export
+              </button>
             </div>
           </div>
         </div>
