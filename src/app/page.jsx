@@ -719,10 +719,10 @@ export default function Page() {
             <img src="/logo_lydo.png" alt="LYDO" className="w-7 h-7 object-contain opacity-70 hover:opacity-100 transition-all" />
             <img src="/logo_sk.png" alt="SK" className="w-7 h-7 object-contain opacity-70 hover:opacity-100 transition-all" />
             <div className="w-[1px] h-5 bg-white/10" />
-            <img src="/logo_ict.png" alt="ICT Division" className="w-7 h-7 object-contain opacity-70 hover:opacity-100 transition-all" />
+            <img src="/logo_cpdo.png" alt="CPDO" className="w-7 h-7 object-contain opacity-70 hover:opacity-100 transition-all" />
           </div>
           <p className="text-[10px] text-white/40 text-center tracking-wide">
-            Designed & Developed by the <span className="font-bold text-white/60">ICT Division • LGU Palayan City</span>
+            Designed & Developed by the <span className="font-bold text-white/60">CPDO • LGU Palayan City</span>
           </p>
         </div>
 
