@@ -41,10 +41,20 @@ async function ensureSupabaseBucket() {
   }
 }
 
+export function sanitizeStorageKey(str) {
+  if (!str) return '';
+  return str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')     // Strips diacritics: ñ -> n, Ñ -> N, é -> e, etc.
+    .replace(/[^\x20-\x7E]/g, '')        // Strips any non-ASCII characters
+    .replace(/[#?\[\]{}\\|^<>%":;]/g, '_') // Replaces characters invalid in URLs/S3 keys
+    .trim();
+}
+
 export async function getOrCreateSubfolder(folderName, parentFolderId) {
-  // If using Supabase Storage, folders are virtual paths, so just return the path prefix name
+  // If using Supabase Storage, folders are virtual paths, so just return the sanitized path prefix name
   if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    return folderName;
+    return sanitizeStorageKey(folderName);
   }
 
   const auth = getGoogleAuth();
@@ -91,7 +101,9 @@ export async function uploadFileToDrive({ base64Data, fileName, mimeType, folder
     const buffer = Buffer.from(base64Clean, 'base64');
 
     // Virtual path prefix (e.g. folderId/fileName)
-    const filePath = folderId ? `${folderId}/${fileName}` : fileName;
+    const cleanFolder = sanitizeStorageKey(folderId);
+    const cleanFileName = sanitizeStorageKey(fileName);
+    const filePath = cleanFolder ? `${cleanFolder}/${cleanFileName}` : cleanFileName;
     const escapedPath = filePath.split('/').map(segment => encodeURIComponent(segment)).join('/');
 
     const uploadRes = await fetch(`${supabaseUrl}/storage/v1/object/lydo-documents/${escapedPath}`, {
@@ -197,8 +209,10 @@ export async function moveFileInDrive(fileId, targetFolderId) {
     const supabaseUrl = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL)?.replace(/\/$/, '');
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    const fileName = fileId.split('/').pop();
-    const newPath = `${targetFolderId}/${fileName}`;
+    const cleanFolder = sanitizeStorageKey(targetFolderId);
+    const rawFileName = fileId.split('/').pop();
+    const cleanFileName = sanitizeStorageKey(rawFileName);
+    const newPath = `${cleanFolder}/${cleanFileName}`;
 
     // 1. Copy to new path
     const copyRes = await fetch(`${supabaseUrl}/storage/v1/object/copy`, {

@@ -438,6 +438,15 @@ function resolveMockQuery(text, params = []) {
   }
 
   // 22. UPDATE documents SET status = 'Approved' WHERE file_id = $1
+  if (sql.includes("UPDATE documents SET status = 'Approved', file_id = $1")) {
+    const doc = mockDocuments.find(d => d.file_id === params[2]);
+    if (doc) {
+      doc.status = 'Approved';
+      doc.file_id = params[0];
+      doc.file_url = params[1];
+    }
+    return { rows: [], rowCount: 1 };
+  }
   if (sql.includes("UPDATE documents SET status = 'Approved' WHERE file_id = $1")) {
     const doc = mockDocuments.find(d => d.file_id === params[0]);
     if (doc) doc.status = 'Approved';
