@@ -44,10 +44,17 @@ function getPool() {
           }
         });
       }
-      // Run automatic migration to add 'appeared' column if not exists
-      global._postgresPool.query('ALTER TABLE scholar_applications ADD COLUMN IF NOT EXISTS appeared BOOLEAN DEFAULT FALSE')
-        .then(() => console.log('Database migration completed: added appeared column to scholar_applications if missing.'))
-        .catch(err => console.error('Database migration error for appeared column:', err));
+      // Run automatic migration to add columns if not exists
+      global._postgresPool.query(`
+        ALTER TABLE scholar_applications 
+          ADD COLUMN IF NOT EXISTS appeared BOOLEAN DEFAULT FALSE,
+          ADD COLUMN IF NOT EXISTS first_name VARCHAR(100),
+          ADD COLUMN IF NOT EXISTS middle_name VARCHAR(100),
+          ADD COLUMN IF NOT EXISTS last_name VARCHAR(100),
+          ADD COLUMN IF NOT EXISTS suffix VARCHAR(20)
+      `)
+        .then(() => console.log('Database migration completed: verified appeared and name columns in scholar_applications.'))
+        .catch(err => console.error('Database migration error:', err));
     }
     pool = global._postgresPool;
   }
@@ -74,6 +81,10 @@ let mockApplications = [
     application_no: 'AFS-00001',
     date_filed: new Date(Date.now() - 2*24*60*60*1000).toISOString(),
     student_full_name: 'Jane M. Doe',
+    first_name: 'Jane',
+    middle_name: 'M.',
+    last_name: 'Doe',
+    suffix: '',
     date_of_birth: '2005-08-12',
     sex: 'Female',
     contact_number: '09123456789',
@@ -89,13 +100,18 @@ let mockApplications = [
     special_circumstances_specify: '',
     status: 'Approved',
     evaluated_by: 'admin',
-    evaluated_at: new Date().toISOString()
+    evaluated_at: new Date().toISOString(),
+    appeared: false
   },
   {
     id: 'app-2',
     application_no: 'AFS-00002',
     date_filed: new Date(Date.now() - 1*24*60*60*1000).toISOString(),
     student_full_name: 'John A. Smith',
+    first_name: 'John',
+    middle_name: 'A.',
+    last_name: 'Smith',
+    suffix: '',
     date_of_birth: '2004-03-22',
     sex: 'Male',
     contact_number: '09876543210',
@@ -111,7 +127,8 @@ let mockApplications = [
     special_circumstances_specify: 'Living with mother who is solo parent',
     status: 'Pending',
     evaluated_by: 'encoder1',
-    evaluated_at: new Date().toISOString()
+    evaluated_at: new Date().toISOString(),
+    appeared: false
   }
 ];
 
@@ -180,6 +197,9 @@ function resolveMockQuery(text, params = []) {
           const q = p.slice(1, -1).toLowerCase();
           filtered = filtered.filter(a => 
             (a.student_full_name || '').toLowerCase().includes(q) ||
+            (a.first_name || '').toLowerCase().includes(q) ||
+            (a.last_name || '').toLowerCase().includes(q) ||
+            (a.middle_name || '').toLowerCase().includes(q) ||
             (a.application_no || '').toLowerCase().includes(q) ||
             (a.school || '').toLowerCase().includes(q) ||
             (a.barangay || '').toLowerCase().includes(q) ||
@@ -464,11 +484,42 @@ function resolveMockQuery(text, params = []) {
     const uniqueId = 'app-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
     // Assign a temporary application_no — reindexScholars will fix this to proper sequential order
     const tempNo = 'AFS-TEMP-' + Date.now();
-    const newApp = {
+    const hasNameFields = params.length >= 20;
+    const newApp = hasNameFields ? {
       id: uniqueId,
       application_no: tempNo,
       date_filed: new Date().toISOString(),
       student_full_name: params[0],
+      first_name: params[1],
+      middle_name: params[2],
+      last_name: params[3],
+      suffix: params[4],
+      date_of_birth: params[5],
+      sex: params[6],
+      barangay: params[7],
+      contact_number: params[8],
+      email: params[9],
+      school: params[10],
+      school_year: params[11],
+      is_solo_parent_beneficiary: params[12],
+      is_orphan: params[13],
+      is_pwd: params[14],
+      is_ip: params[15],
+      is_out_of_school_youth: params[16],
+      special_circumstances_specify: params[17],
+      status: params[18],
+      evaluated_by: params[19],
+      evaluated_at: new Date().toISOString(),
+      appeared: false
+    } : {
+      id: uniqueId,
+      application_no: tempNo,
+      date_filed: new Date().toISOString(),
+      student_full_name: params[0],
+      first_name: '',
+      middle_name: '',
+      last_name: '',
+      suffix: '',
       date_of_birth: params[1],
       sex: params[2],
       barangay: params[3],
@@ -493,23 +544,47 @@ function resolveMockQuery(text, params = []) {
 
   // 25. UPDATE scholar_applications
   if (sql.includes('UPDATE scholar_applications')) {
-    const app = mockApplications.find(a => a.id === params[15]);
+    const hasNameFields = params.length >= 20;
+    const targetId = hasNameFields ? params[19] : params[15];
+    const app = mockApplications.find(a => a.id === targetId);
     if (app) {
-      app.student_full_name = params[0];
-      app.date_of_birth = params[1];
-      app.sex = params[2];
-      app.barangay = params[3];
-      app.contact_number = params[4];
-      app.email = params[5];
-      app.school = params[6];
-      app.school_year = params[7];
-      app.is_solo_parent_beneficiary = params[8];
-      app.is_orphan = params[9];
-      app.is_pwd = params[10];
-      app.is_ip = params[11];
-      app.is_out_of_school_youth = params[12];
-      app.special_circumstances_specify = params[13];
-      app.status = params[14];
+      if (hasNameFields) {
+        app.student_full_name = params[0];
+        app.first_name = params[1];
+        app.middle_name = params[2];
+        app.last_name = params[3];
+        app.suffix = params[4];
+        app.date_of_birth = params[5];
+        app.sex = params[6];
+        app.barangay = params[7];
+        app.contact_number = params[8];
+        app.email = params[9];
+        app.school = params[10];
+        app.school_year = params[11];
+        app.is_solo_parent_beneficiary = params[12];
+        app.is_orphan = params[13];
+        app.is_pwd = params[14];
+        app.is_ip = params[15];
+        app.is_out_of_school_youth = params[16];
+        app.special_circumstances_specify = params[17];
+        app.status = params[18];
+      } else {
+        app.student_full_name = params[0];
+        app.date_of_birth = params[1];
+        app.sex = params[2];
+        app.barangay = params[3];
+        app.contact_number = params[4];
+        app.email = params[5];
+        app.school = params[6];
+        app.school_year = params[7];
+        app.is_solo_parent_beneficiary = params[8];
+        app.is_orphan = params[9];
+        app.is_pwd = params[10];
+        app.is_ip = params[11];
+        app.is_out_of_school_youth = params[12];
+        app.special_circumstances_specify = params[13];
+        app.status = params[14];
+      }
       app.evaluated_at = new Date().toISOString();
     }
     return { rows: [], rowCount: 1 };

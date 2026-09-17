@@ -21,6 +21,10 @@ CREATE TABLE IF NOT EXISTS scholar_applications (
     date_filed TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     
     student_full_name VARCHAR(255) NOT NULL,
+    first_name VARCHAR(100),
+    middle_name VARCHAR(100),
+    last_name VARCHAR(100),
+    suffix VARCHAR(20),
     date_of_birth DATE NOT NULL,
     sex VARCHAR(10) NOT NULL,
     barangay VARCHAR(100) NOT NULL,
@@ -36,6 +40,7 @@ CREATE TABLE IF NOT EXISTS scholar_applications (
     is_out_of_school_youth BOOLEAN DEFAULT FALSE,
     special_circumstances_specify TEXT,
     
+    appeared BOOLEAN DEFAULT FALSE,
     status VARCHAR(30) DEFAULT 'Pending' CHECK (status IN ('Pending', 'Approved', 'Rejected')),
     evaluated_by VARCHAR(50) REFERENCES users(username) ON DELETE SET NULL,
     evaluated_at TIMESTAMP WITH TIME ZONE
@@ -93,3 +98,12 @@ VALUES
     ('encoder4', '$2b$10$iui9yCS2fqFFOTsjeBq4Jua1ts9mKHWsKVXvN6SlDGadfaFGCY6wS', 'encoder', 'Encoder 4'),
     ('encoder5', '$2b$10$iui9yCS2fqFFOTsjeBq4Jua1ts9mKHWsKVXvN6SlDGadfaFGCY6wS', 'encoder', 'Encoder 5')
 ON CONFLICT (username) DO NOTHING;
+
+-- Schema migrations for existing databases:
+ALTER TABLE scholar_applications 
+  ADD COLUMN IF NOT EXISTS appeared BOOLEAN DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS first_name VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS middle_name VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS last_name VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS suffix VARCHAR(20);
+

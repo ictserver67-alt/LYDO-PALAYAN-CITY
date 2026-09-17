@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getSessionFromRequest } from '../../_utils/session';
 import { query } from '../../_utils/db';
 import { reindexScholars } from '../../_utils/reindex';
+import { formatFullName } from '../../_utils/nameHelper';
 
 export async function POST(req) {
   try {
@@ -13,8 +14,18 @@ export async function POST(req) {
 
     const data = await req.json();
 
+    const firstName = (data.firstName || '').trim();
+    const middleName = (data.middleName || '').trim();
+    const lastName = (data.lastName || '').trim();
+    const suffix = (data.suffix || '').trim();
+
+    let studentFullName = (data.studentFullName || '').trim();
+    if (!studentFullName && (firstName || lastName)) {
+      studentFullName = formatFullName({ firstName, middleName, lastName, suffix });
+    }
+
     // Required fields check (minimal checking)
-    if (!data.studentFullName || !data.dateOfBirth || !data.sex || !data.barangay) {
+    if (!studentFullName || !data.dateOfBirth || !data.sex || !data.barangay) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
@@ -23,6 +34,10 @@ export async function POST(req) {
       INSERT INTO scholar_applications (
         application_no,
         student_full_name,
+        first_name,
+        middle_name,
+        last_name,
+        suffix,
         date_of_birth,
         sex,
         barangay,
@@ -43,13 +58,17 @@ export async function POST(req) {
       VALUES (
         'AFS-' || LPAD(nextval('scholar_afs_seq')::text, 5, '0'),
         $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
-        $11, $12, $13, $14, $15, $16, NOW()
+        $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, NOW()
       )
       RETURNING application_no
     `;
 
     const values = [
-      data.studentFullName,
+      studentFullName,
+      firstName || null,
+      middleName || null,
+      lastName || null,
+      suffix || null,
       data.dateOfBirth,
       data.sex,
       data.barangay,
@@ -77,7 +96,7 @@ export async function POST(req) {
       `SELECT application_no FROM scholar_applications 
        WHERE student_full_name = $1 AND date_of_birth = $2 
        ORDER BY date_filed DESC LIMIT 1`,
-      [data.studentFullName, data.dateOfBirth]
+      [studentFullName, data.dateOfBirth]
     );
     const newAfs = finalRes.rows[0]?.application_no || 'AFS-00001';
 

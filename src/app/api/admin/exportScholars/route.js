@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getSessionFromRequest } from '../../_utils/session';
 import { query } from '../../_utils/db';
 import * as XLSX from 'xlsx';
+import { parseFullName } from '../../_utils/nameHelper';
 
 export async function GET(req) {
   try {
@@ -19,14 +20,13 @@ export async function GET(req) {
     const barangayFilter = searchParams.get('barangayFilter') || 'All';
     const circumstanceFilter = searchParams.get('circumstanceFilter') || 'all';
     
-    // Search / Main Filter params (only if scope is filtered)
-    const search = searchParams.get('search');
+    // Active table state filters (if scope === 'filtered')
     const mainBarangay = searchParams.get('mainBarangay');
     const mainStatus = searchParams.get('mainStatus');
+    const search = searchParams.get('search');
 
-    // 1. Fetch all applications
-    const sql = 'SELECT * FROM scholar_applications ORDER BY application_no ASC';
-    const res = await query(sql);
+    // 1. Fetch all applications from DB
+    const res = await query('SELECT * FROM scholar_applications ORDER BY date_filed DESC');
     let rows = res.rows || [];
 
     // 2. Apply main filters (if scope is 'filtered')
@@ -41,6 +41,9 @@ export async function GET(req) {
         const q = search.trim().toLowerCase();
         rows = rows.filter(r => 
           (r.student_full_name || '').toLowerCase().includes(q) ||
+          (r.first_name || '').toLowerCase().includes(q) ||
+          (r.last_name || '').toLowerCase().includes(q) ||
+          (r.middle_name || '').toLowerCase().includes(q) ||
           (r.application_no || '').toLowerCase().includes(q) ||
           (r.school || '').toLowerCase().includes(q) ||
           (r.barangay || '').toLowerCase().includes(q) ||
@@ -121,9 +124,27 @@ export async function GET(req) {
       if (r.is_ip) circs.push('IP');
       if (r.is_out_of_school_youth) circs.push('OSY');
 
+      // Resolve separated names (with fallback to parsing student_full_name if legacy record)
+      let firstName = r.first_name || '';
+      let middleName = r.middle_name || '';
+      let lastName = r.last_name || '';
+      let suffix = r.suffix || '';
+
+      if (!firstName && !lastName && r.student_full_name) {
+        const parsed = parseFullName(r.student_full_name);
+        firstName = parsed.firstName;
+        middleName = parsed.middleName;
+        lastName = parsed.lastName;
+        suffix = parsed.suffix;
+      }
+
       return {
         'Application No': r.application_no || '',
         'Date Filed': dateFiled,
+        'Last Name': lastName,
+        'First Name': firstName,
+        'Middle Name': middleName,
+        'Suffix': suffix,
         'Full Name': r.student_full_name || '',
         'Date of Birth': bdate,
         'Sex': r.sex || '',
@@ -150,6 +171,10 @@ export async function GET(req) {
     const colWidths = [
       { wch: 15 }, // Application No
       { wch: 22 }, // Date Filed
+      { wch: 18 }, // Last Name
+      { wch: 18 }, // First Name
+      { wch: 16 }, // Middle Name
+      { wch: 8 },  // Suffix
       { wch: 26 }, // Full Name
       { wch: 14 }, // Date of Birth
       { wch: 8 },  // Sex

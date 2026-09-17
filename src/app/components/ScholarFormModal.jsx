@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { BARANGAYS } from '../api/_utils/constants';
+import { parseFullName, formatFullName } from '../api/_utils/nameHelper';
 
 export default function ScholarFormModal({ isOpen, onClose, application = null, onSave, isPublicMode = false }) {
   const isEditMode = !!application;
   
   const [formData, setFormData] = useState({
+    firstName: '',
+    middleName: '',
+    lastName: '',
+    suffix: '',
     studentFullName: '',
     dateOfBirth: '',
     sex: 'Male',
@@ -31,9 +36,29 @@ export default function ScholarFormModal({ isOpen, onClose, application = null, 
   useEffect(() => {
     if (isOpen) {
       if (isEditMode && application) {
+        let firstName = application.first_name || '';
+        let middleName = application.middle_name || '';
+        let lastName = application.last_name || '';
+        let suffix = application.suffix || '';
+
+        // If editing a legacy record with only student_full_name, parse it automatically
+        if (!firstName && !lastName && application.student_full_name) {
+          const parsed = parseFullName(application.student_full_name);
+          firstName = parsed.firstName;
+          middleName = parsed.middleName;
+          lastName = parsed.lastName;
+          suffix = parsed.suffix;
+        }
+
+        const studentFullName = application.student_full_name || formatFullName({ firstName, middleName, lastName, suffix });
+
         setFormData({
           id: application.id,
-          studentFullName: application.student_full_name || '',
+          firstName,
+          middleName,
+          lastName,
+          suffix,
+          studentFullName,
           dateOfBirth: application.date_of_birth ? new Date(application.date_of_birth).toISOString().split('T')[0] : '',
           sex: application.sex || 'Male',
           barangay: application.barangay || BARANGAYS[0],
@@ -53,6 +78,10 @@ export default function ScholarFormModal({ isOpen, onClose, application = null, 
       } else {
         // Reset
         setFormData({
+          firstName: '',
+          middleName: '',
+          lastName: '',
+          suffix: '',
           studentFullName: '',
           dateOfBirth: '',
           sex: 'Male',
@@ -79,10 +108,17 @@ export default function ScholarFormModal({ isOpen, onClose, application = null, 
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+    setFormData(prev => {
+      const updated = {
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value
+      };
+      // Keep studentFullName in sync whenever name fields change
+      if (['firstName', 'middleName', 'lastName', 'suffix'].includes(name)) {
+        updated.studentFullName = formatFullName(updated);
+      }
+      return updated;
+    });
   };
 
   const handleBarangaySelect = (barangayName) => {
@@ -102,11 +138,18 @@ export default function ScholarFormModal({ isOpen, onClose, application = null, 
 
     const url = isPublicMode ? '/api/public/submitScholar' : (isEditMode ? '/api/admin/updateScholar' : '/api/admin/encodeScholar');
     
+    // Ensure studentFullName is properly formatted from parts
+    const studentFullName = formatFullName(formData) || formData.studentFullName;
+    const payload = {
+      ...formData,
+      studentFullName
+    };
+
     try {
       const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       });
       const data = await res.json();
 
@@ -150,19 +193,79 @@ export default function ScholarFormModal({ isOpen, onClose, application = null, 
 
           <form id="scholarForm" onSubmit={handleSubmit} className="flex flex-col gap-6">
             
-            {/* Full Name */}
-            <div className="flex flex-col">
-              <label className="input-label">Student Full Name *</label>
-              <input 
-                type="text" 
-                name="studentFullName" 
-                required 
-                placeholder="e.g. Juan A. Dela Cruz" 
-                value={formData.studentFullName} 
-                onChange={handleChange} 
-                className="input-field" 
-                disabled={loading} 
-              />
+            {/* Scholar Name Fields */}
+            <div className="flex flex-col gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col">
+                  <label className="input-label">First Name *</label>
+                  <input 
+                    type="text" 
+                    name="firstName" 
+                    required 
+                    placeholder="e.g. Juan" 
+                    value={formData.firstName} 
+                    onChange={handleChange} 
+                    className="input-field" 
+                    disabled={loading} 
+                  />
+                </div>
+
+                <div className="flex flex-col">
+                  <label className="input-label">Middle Name <span className="text-white/40 font-normal text-xs">(Optional)</span></label>
+                  <input 
+                    type="text" 
+                    name="middleName" 
+                    placeholder="e.g. Santos (or leave blank)" 
+                    value={formData.middleName} 
+                    onChange={handleChange} 
+                    className="input-field" 
+                    disabled={loading} 
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="sm:col-span-2 flex flex-col">
+                  <label className="input-label">Last Name (Surname) *</label>
+                  <input 
+                    type="text" 
+                    name="lastName" 
+                    required 
+                    placeholder="e.g. Dela Cruz" 
+                    value={formData.lastName} 
+                    onChange={handleChange} 
+                    className="input-field" 
+                    disabled={loading} 
+                  />
+                </div>
+
+                <div className="flex flex-col">
+                  <label className="input-label">Suffix <span className="text-white/40 font-normal text-xs">(Optional)</span></label>
+                  <select 
+                    name="suffix" 
+                    value={formData.suffix} 
+                    onChange={handleChange} 
+                    className="input-field cursor-pointer" 
+                    disabled={loading}
+                  >
+                    <option value="" className="bg-forest-dark text-white">None</option>
+                    <option value="Jr." className="bg-forest-dark text-white">Jr.</option>
+                    <option value="Sr." className="bg-forest-dark text-white">Sr.</option>
+                    <option value="II" className="bg-forest-dark text-white">II</option>
+                    <option value="III" className="bg-forest-dark text-white">III</option>
+                    <option value="IV" className="bg-forest-dark text-white">IV</option>
+                    <option value="V" className="bg-forest-dark text-white">V</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Full Name Preview if name entered */}
+              {formData.studentFullName && (
+                <div className="text-[11px] text-gold/80 px-1 flex items-center gap-1.5 font-mono">
+                  <span className="text-white/40">Full Name Preview:</span>
+                  <span className="font-semibold">{formData.studentFullName}</span>
+                </div>
+              )}
             </div>
 
             {/* Date of Birth & Sex */}

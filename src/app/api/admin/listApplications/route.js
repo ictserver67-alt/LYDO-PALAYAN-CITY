@@ -31,6 +31,9 @@ export async function GET(req) {
       const pIdx = analyticsParams.length;
       analyticsWhereClause += ` AND (
         student_full_name ILIKE $${pIdx} OR 
+        first_name ILIKE $${pIdx} OR 
+        last_name ILIKE $${pIdx} OR 
+        middle_name ILIKE $${pIdx} OR 
         application_no ILIKE $${pIdx} OR 
         school ILIKE $${pIdx} OR 
         barangay ILIKE $${pIdx} OR 
@@ -58,6 +61,9 @@ export async function GET(req) {
       const pIdx = params.length;
       whereClause += ` AND (
         student_full_name ILIKE $${pIdx} OR 
+        first_name ILIKE $${pIdx} OR 
+        last_name ILIKE $${pIdx} OR 
+        middle_name ILIKE $${pIdx} OR 
         application_no ILIKE $${pIdx} OR 
         school ILIKE $${pIdx} OR 
         barangay ILIKE $${pIdx} OR 
