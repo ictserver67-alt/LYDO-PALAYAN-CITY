@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Sidebar({ activeTab, setActiveTab, user, onLogout }) {
+export default function Sidebar({ activeTab, setActiveTab, user, onLogout, onOpenPrivacyModal }) {
   if (!user) return null;
 
   const isAdmin = user.role === 'admin';
@@ -126,8 +126,29 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout }) {
       </div>
 
       {/* Profile & Logout */}
-      <div className="flex flex-col gap-4 border-t border-white/10 pt-6">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col gap-3 border-t border-white/10 pt-5">
+        {/* NPC Registration & Data Privacy Button */}
+        <button
+          type="button"
+          onClick={() => onOpenPrivacyModal && onOpenPrivacyModal('seal')}
+          className="flex items-center gap-2.5 p-2 rounded-xl bg-white/[0.03] border border-gold/20 hover:border-gold/50 hover:bg-white/[0.06] transition-all text-left cursor-pointer group shadow-sm"
+          title="View NPC Registration Seal & Data Privacy Policy"
+        >
+          <img 
+            src="/npc_seal.png" 
+            alt="NPC Seal" 
+            className="w-5 h-8 object-contain shrink-0 group-hover:scale-105 transition-transform" 
+          />
+          <div className="flex flex-col overflow-hidden">
+            <span className="text-[10px] font-extrabold text-white group-hover:text-gold flex items-center gap-1.5 leading-tight">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              NPC DPO/DPS Registered
+            </span>
+            <span className="text-[9px] text-white/40 mt-0.5">Privacy Policy & Terms</span>
+          </div>
+        </button>
+
+        <div className="flex items-center gap-3 pt-1">
           <div className="w-9 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-gold text-sm font-semibold capitalize">
             {user.username.slice(0, 2)}
           </div>

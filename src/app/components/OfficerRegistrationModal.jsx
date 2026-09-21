@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BARANGAYS } from '../api/_utils/constants';
 
-export default function OfficerRegistrationModal({ isOpen, onClose }) {
+export default function OfficerRegistrationModal({ isOpen, onClose, onOpenPrivacyModal }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -170,10 +170,36 @@ export default function OfficerRegistrationModal({ isOpen, onClose }) {
             </div>
           </div>
 
+          {/* Privacy and Terms Note */}
+          <div className="p-2.5 bg-white/[0.03] border border-white/5 rounded-lg flex items-start gap-2 text-[10px] text-white/50">
+            <svg className="w-4 h-4 text-gold shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            <p className="leading-tight">
+              By creating an account, you acknowledge our{' '}
+              <button
+                type="button"
+                onClick={() => onOpenPrivacyModal && onOpenPrivacyModal('privacy')}
+                className="text-gold underline hover:text-gold-light cursor-pointer"
+              >
+                Privacy Policy
+              </button>{' '}
+              and agree to the{' '}
+              <button
+                type="button"
+                onClick={() => onOpenPrivacyModal && onOpenPrivacyModal('terms')}
+                className="text-gold underline hover:text-gold-light cursor-pointer"
+              >
+                Terms of Service
+              </button>{' '}
+              pursuant to R.A. 10173 (Data Privacy Act of 2012).
+            </p>
+          </div>
+
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-2 py-3 bg-gold-gradient hover:shadow-lg text-forest-dark font-bold text-sm rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer glow-btn disabled:opacity-50"
+            className="w-full mt-1 py-3 bg-gold-gradient hover:shadow-lg text-forest-dark font-bold text-sm rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer glow-btn disabled:opacity-50"
           >
             {loading ? (
               <svg className="animate-spin h-5 w-5 text-forest-dark" fill="none" viewBox="0 0 24 24">

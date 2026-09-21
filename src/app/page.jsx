@@ -9,6 +9,7 @@ import ScholarRegistrationModal from './components/ScholarRegistrationModal';
 import ScholarFormModal from './components/ScholarFormModal';
 import ScholarList from './components/ScholarList';
 import AnalyticsTab from './components/AnalyticsTab';
+import PrivacyTermsModal from './components/PrivacyTermsModal';
 import { BARANGAYS, LYDC_CENTERS } from './api/_utils/constants';
 
 export default function Page() {
@@ -42,6 +43,7 @@ export default function Page() {
   const [isScholarRegisterOpen, setIsScholarRegisterOpen] = useState(false);
   const [isPublicApplyOpen, setIsPublicApplyOpen] = useState(false);
   const [publicSubmittedAfs, setPublicSubmittedAfs] = useState(null);
+  const [privacyModalState, setPrivacyModalState] = useState({ isOpen: false, tab: 'seal' });
 
   // Active Tab
   const [activeTab, setActiveTab] = useState('home');
@@ -712,8 +714,63 @@ export default function Page() {
           </form>
         </div>
 
+        {/* National Privacy Commission (NPC) Compliance Card & Seal */}
+        <div className="mt-6 w-full max-w-md bg-white/[0.03] border border-gold/30 hover:border-gold/60 p-3.5 rounded-2xl backdrop-blur-md transition-all shadow-xl flex items-center justify-between gap-3 group animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setPrivacyModalState({ isOpen: true, tab: 'seal' })}
+              className="shrink-0 p-1 bg-white/5 rounded-xl border border-gold/40 hover:border-gold group-hover:scale-105 transition-all cursor-pointer shadow-md"
+              title="Click to view full NPC Registration Seal"
+            >
+              <img 
+                src="/npc_seal.png" 
+                alt="National Privacy Commission DPO/DPS Registered Seal" 
+                className="w-10 h-16 object-contain drop-shadow-[0_0_10px_rgba(255,215,0,0.35)]" 
+              />
+            </button>
+            <div className="flex flex-col text-left">
+              <div className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-[11px] font-black text-white tracking-wide uppercase">
+                  NPC DPO/DPS Registered
+                </span>
+              </div>
+              <p className="text-[10px] text-white/50 leading-tight mt-0.5">
+                Data Privacy Act of 2012 (R.A. 10173) Compliant
+              </p>
+              <div className="flex items-center gap-2 mt-1.5 text-[10px]">
+                <button
+                  type="button"
+                  onClick={() => setPrivacyModalState({ isOpen: true, tab: 'privacy' })}
+                  className="text-gold font-bold hover:underline transition-all cursor-pointer"
+                >
+                  Privacy Policy
+                </button>
+                <span className="text-white/20">•</span>
+                <button
+                  type="button"
+                  onClick={() => setPrivacyModalState({ isOpen: true, tab: 'terms' })}
+                  className="text-gold font-bold hover:underline transition-all cursor-pointer"
+                >
+                  Terms & Conditions
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setPrivacyModalState({ isOpen: true, tab: 'seal' })}
+            className="shrink-0 text-[10px] font-bold text-forest-dark bg-gold-gradient px-2.5 py-1.5 rounded-lg hover:shadow-md transition-all cursor-pointer flex items-center gap-1"
+          >
+            Seal
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+          </button>
+        </div>
+
         {/* Footer with All Logos & Credits */}
-        <div className="flex flex-col items-center gap-3 mt-8 w-full max-w-md bg-white/[0.02] border border-white/5 p-4 rounded-2xl backdrop-blur-sm animate-in fade-in duration-500">
+        <div className="flex flex-col items-center gap-3 mt-4 w-full max-w-md bg-white/[0.02] border border-white/5 p-4 rounded-2xl backdrop-blur-sm animate-in fade-in duration-500">
           <div className="flex items-center justify-center gap-4">
             <img src="/logo_palayan.png" alt="Palayan City" className="w-7 h-7 object-contain opacity-70 hover:opacity-100 transition-all" />
             <img src="/logo_lydo.png" alt="LYDO" className="w-7 h-7 object-contain opacity-70 hover:opacity-100 transition-all" />
@@ -731,6 +788,7 @@ export default function Page() {
           <OfficerRegistrationModal
             isOpen={isOfficerRegisterOpen}
             onClose={() => setIsOfficerRegisterOpen(false)}
+            onOpenPrivacyModal={(tab) => setPrivacyModalState({ isOpen: true, tab: tab || 'seal' })}
           />
         )}
 
@@ -739,6 +797,7 @@ export default function Page() {
           <ScholarRegistrationModal
             isOpen={isScholarRegisterOpen}
             onClose={() => setIsScholarRegisterOpen(false)}
+            onOpenPrivacyModal={(tab) => setPrivacyModalState({ isOpen: true, tab: tab || 'seal' })}
           />
         )}
 
@@ -748,6 +807,7 @@ export default function Page() {
             isOpen={isPublicApplyOpen}
             isPublicMode={true}
             onClose={() => setIsPublicApplyOpen(false)}
+            onOpenPrivacyModal={(tab) => setPrivacyModalState({ isOpen: true, tab: tab || 'seal' })}
             onSave={(afs) => {
               setIsPublicApplyOpen(false);
               setPublicSubmittedAfs(afs);
@@ -780,6 +840,12 @@ export default function Page() {
             </div>
           </div>
         )}
+        {/* Privacy Policy, Terms & NPC Seal Modal (Public) */}
+        <PrivacyTermsModal
+          isOpen={privacyModalState.isOpen}
+          initialTab={privacyModalState.tab}
+          onClose={() => setPrivacyModalState({ isOpen: false, tab: 'seal' })}
+        />
       </main>
     );
   }
@@ -796,6 +862,7 @@ export default function Page() {
         setActiveTab={setActiveTab}
         user={user}
         onLogout={handleLogout}
+        onOpenPrivacyModal={(tab) => setPrivacyModalState({ isOpen: true, tab: tab || 'seal' })}
       />
 
       {/* Main Workspace Panels */}
@@ -1624,6 +1691,13 @@ export default function Page() {
           </div>
         </div>
       )}
+
+      {/* Privacy Policy, Terms & NPC Seal Modal (Dashboard) */}
+      <PrivacyTermsModal
+        isOpen={privacyModalState.isOpen}
+        initialTab={privacyModalState.tab}
+        onClose={() => setPrivacyModalState({ isOpen: false, tab: 'seal' })}
+      />
     </div>
   );
 }

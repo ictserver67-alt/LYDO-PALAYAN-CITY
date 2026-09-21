@@ -1,9 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { BARANGAYS } from '../api/_utils/constants';
 import { parseFullName, formatFullName } from '../api/_utils/nameHelper';
+import PrivacyTermsModal from './PrivacyTermsModal';
 
-export default function ScholarFormModal({ isOpen, onClose, application = null, onSave, isPublicMode = false }) {
+export default function ScholarFormModal({ isOpen, onClose, application = null, onSave, isPublicMode = false, onOpenPrivacyModal }) {
   const isEditMode = !!application;
+  const [internalPrivacyTab, setInternalPrivacyTab] = useState(null);
+  
+  const handleOpenPrivacy = (tab) => {
+    if (onOpenPrivacyModal) {
+      onOpenPrivacyModal(tab);
+    } else {
+      setInternalPrivacyTab(tab);
+    }
+  };
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -455,6 +465,33 @@ export default function ScholarFormModal({ isOpen, onClose, application = null, 
                 </select>
               </div>
             )}
+            {/* Data Privacy Consent Notice */}
+            <div className="p-3 bg-white/[0.02] border border-white/5 rounded-xl flex items-start gap-2.5 text-[11px] text-white/60">
+              <svg className="w-4 h-4 text-gold shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <div className="leading-normal">
+                <span className="font-semibold text-white/80 block">Data Privacy Consent (R.A. 10173)</span>
+                <span>
+                  The personal information collected in this form is processed strictly by LGU Palayan City for evaluating scholarship eligibility. View our{' '}
+                  <button
+                    type="button"
+                    onClick={() => handleOpenPrivacy('privacy')}
+                    className="text-gold underline hover:text-gold-light cursor-pointer font-medium"
+                  >
+                    Privacy Policy
+                  </button>{' '}
+                  and{' '}
+                  <button
+                    type="button"
+                    onClick={() => handleOpenPrivacy('terms')}
+                    className="text-gold underline hover:text-gold-light cursor-pointer font-medium"
+                  >
+                    Terms & Conditions
+                  </button>.
+                </span>
+              </div>
+            </div>
 
           </form>
         </div>
@@ -471,6 +508,15 @@ export default function ScholarFormModal({ isOpen, onClose, application = null, 
           </button>
         </div>
       </div>
+
+      {/* Internal Privacy & Terms Modal Fallback */}
+      {internalPrivacyTab && (
+        <PrivacyTermsModal
+          isOpen={!!internalPrivacyTab}
+          initialTab={internalPrivacyTab}
+          onClose={() => setInternalPrivacyTab(null)}
+        />
+      )}
     </div>
   );
 }
