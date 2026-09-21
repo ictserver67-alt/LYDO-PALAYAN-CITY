@@ -10,6 +10,7 @@ import ScholarFormModal from './components/ScholarFormModal';
 import ScholarList from './components/ScholarList';
 import AnalyticsTab from './components/AnalyticsTab';
 import PrivacyTermsModal from './components/PrivacyTermsModal';
+import WhatsNewModal from './components/WhatsNewModal';
 import { BARANGAYS, LYDC_CENTERS } from './api/_utils/constants';
 
 export default function Page() {
@@ -44,6 +45,20 @@ export default function Page() {
   const [isPublicApplyOpen, setIsPublicApplyOpen] = useState(false);
   const [publicSubmittedAfs, setPublicSubmittedAfs] = useState(null);
   const [privacyModalState, setPrivacyModalState] = useState({ isOpen: false, tab: 'seal' });
+  const [isWhatsNewOpen, setIsWhatsNewOpen] = useState(false);
+
+  // Check "Don't show up for today" on mount
+  useEffect(() => {
+    try {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const dismissedDate = localStorage.getItem('lydo_whats_new_dismissed_date');
+      if (dismissedDate !== todayStr) {
+        setIsWhatsNewOpen(true);
+      }
+    } catch (err) {
+      console.warn('LocalStorage access warning:', err);
+    }
+  }, []);
 
   // Active Tab
   const [activeTab, setActiveTab] = useState('home');
@@ -609,6 +624,17 @@ export default function Page() {
             <h1 className="text-xl font-black text-gold-gradient tracking-tight uppercase">Palayan City Youth Portal</h1>
             <p className="text-[10px] text-white/50 uppercase tracking-widest font-semibold mt-0.5">Republic of the Philippines</p>
           </div>
+
+          {/* What's New Pill Button */}
+          <button
+            type="button"
+            onClick={() => setIsWhatsNewOpen(true)}
+            className="mt-1 flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold/15 hover:bg-gold/25 text-gold border border-gold/30 text-xs font-bold transition-all cursor-pointer shadow-sm hover:scale-105"
+          >
+            <svg className="w-3.5 h-3.5 animate-pulse text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
+            <span>What&apos;s New</span>
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          </button>
         </div>
 
         {/* Portal Gateway Selection */}
@@ -846,6 +872,12 @@ export default function Page() {
           initialTab={privacyModalState.tab}
           onClose={() => setPrivacyModalState({ isOpen: false, tab: 'seal' })}
         />
+
+        {/* What's New Modal (Public) */}
+        <WhatsNewModal
+          isOpen={isWhatsNewOpen}
+          onClose={() => setIsWhatsNewOpen(false)}
+        />
       </main>
     );
   }
@@ -863,6 +895,7 @@ export default function Page() {
         user={user}
         onLogout={handleLogout}
         onOpenPrivacyModal={(tab) => setPrivacyModalState({ isOpen: true, tab: tab || 'seal' })}
+        onOpenWhatsNew={() => setIsWhatsNewOpen(true)}
       />
 
       {/* Main Workspace Panels */}
@@ -1697,6 +1730,12 @@ export default function Page() {
         isOpen={privacyModalState.isOpen}
         initialTab={privacyModalState.tab}
         onClose={() => setPrivacyModalState({ isOpen: false, tab: 'seal' })}
+      />
+
+      {/* What's New Modal (Dashboard) */}
+      <WhatsNewModal
+        isOpen={isWhatsNewOpen}
+        onClose={() => setIsWhatsNewOpen(false)}
       />
     </div>
   );

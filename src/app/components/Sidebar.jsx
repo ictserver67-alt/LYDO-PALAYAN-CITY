@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Sidebar({ activeTab, setActiveTab, user, onLogout, onOpenPrivacyModal }) {
+export default function Sidebar({ activeTab, setActiveTab, user, onLogout, onOpenPrivacyModal, onOpenWhatsNew }) {
   if (!user) return null;
 
   const isAdmin = user.role === 'admin';
@@ -126,7 +126,27 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout, onOpe
       </div>
 
       {/* Profile & Logout */}
-      <div className="flex flex-col gap-3 border-t border-white/10 pt-5">
+      <div className="flex flex-col gap-2.5 border-t border-white/10 pt-4">
+        {/* What's New Button */}
+        <button
+          type="button"
+          onClick={() => onOpenWhatsNew && onOpenWhatsNew()}
+          className="flex items-center justify-between p-2 rounded-xl bg-gold/10 border border-gold/30 hover:bg-gold/20 hover:border-gold/60 transition-all text-left cursor-pointer group shadow-sm"
+          title="See what's new in this release"
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-gold flex items-center justify-center">
+              <svg className="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+              </svg>
+            </span>
+            <span className="text-xs font-bold text-gold">What&apos;s New</span>
+          </div>
+          <span className="text-[9px] uppercase font-black tracking-wider px-1.5 py-0.5 rounded bg-gold text-forest-dark font-mono">
+            UPDATES
+          </span>
+        </button>
+
         {/* NPC Registration & Data Privacy Button */}
         <button
           type="button"
