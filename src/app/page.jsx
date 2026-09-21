@@ -1736,6 +1736,7 @@ export default function Page() {
       <WhatsNewModal
         isOpen={isWhatsNewOpen}
         onClose={() => setIsWhatsNewOpen(false)}
+        user={user}
       />
     </div>
   );

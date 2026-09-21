@@ -48,6 +48,7 @@ export const UPDATES_DATA = [
     tag: 'Admin Tools',
     tagColor: 'bg-purple-500/15 text-purple-400 border-purple-500/30',
     title: 'Admin Password Reset & Attendance Reset Controls',
+    adminOnly: true,
     description: 'Administrative controls to support on-ground verification workflows and credential management.',
     highlights: [
       'Direct password reset capability for SK and encoder accounts inside the User Accounts dashboard.',
@@ -57,10 +58,11 @@ export const UPDATES_DATA = [
   }
 ];
 
-export default function WhatsNewModal({ isOpen, onClose }) {
+export default function WhatsNewModal({ isOpen, onClose, user = null }) {
   const [dontShowToday, setDontShowToday] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all');
 
+  const isAdmin = user?.role === 'admin';
   const todayStr = new Date().toISOString().split('T')[0];
 
   const handleClose = () => {
@@ -76,9 +78,27 @@ export default function WhatsNewModal({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
+  // Filter out admin-only updates for non-admin users (students, public, encoders, SK)
+  const visibleUpdates = UPDATES_DATA.filter(u => {
+    if (u.adminOnly && !isAdmin) return false;
+    return true;
+  });
+
   const filteredUpdates = activeFilter === 'all' 
-    ? UPDATES_DATA 
-    : UPDATES_DATA.filter(u => u.tag.toLowerCase().includes(activeFilter.toLowerCase()));
+    ? visibleUpdates 
+    : visibleUpdates.filter(u => u.tag.toLowerCase().includes(activeFilter.toLowerCase()));
+
+  // Filter tabs dynamically based on user role
+  const filterTabs = [
+    { id: 'all', label: 'All Updates' },
+    { id: 'compliance', label: 'Compliance' },
+    { id: 'feature', label: 'Features' },
+    { id: 'enhancement', label: 'Enhancements' }
+  ];
+
+  if (isAdmin) {
+    filterTabs.push({ id: 'admin', label: 'Admin Tools' });
+  }
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[130] p-4 font-sans animate-in fade-in duration-200">
@@ -121,13 +141,7 @@ export default function WhatsNewModal({ isOpen, onClose }) {
         {/* Layer 2: Category Filters Stack */}
         <div className="flex items-center gap-2 px-6 py-3 border-b border-white/10 bg-black/20 shrink-0 overflow-x-auto text-xs">
           <span className="text-white/40 text-[11px] font-semibold uppercase tracking-wider mr-1">Filter:</span>
-          {[
-            { id: 'all', label: 'All Updates' },
-            { id: 'compliance', label: 'Compliance' },
-            { id: 'feature', label: 'Features' },
-            { id: 'enhancement', label: 'Enhancements' },
-            { id: 'admin', label: 'Admin Tools' }
-          ].map(tab => (
+          {filterTabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveFilter(tab.id)}
