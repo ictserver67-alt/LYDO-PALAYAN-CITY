@@ -4,6 +4,20 @@ import React, { useState, useEffect } from 'react';
 
 export const UPDATES_DATA = [
   {
+    version: 'v2.5.0',
+    date: 'September 25, 2026',
+    tag: 'Mobile & UX',
+    tagColor: 'bg-cyan-500/15 text-cyan-400 border-cyan-500/30',
+    title: 'Complete Mobile-Responsive Portal & Adaptive Drawer Navigation',
+    description: 'The entire Palayan City Youth Portal has been fully enhanced for smartphones, phablets, and tablets with fluid scaling and responsive navigation.',
+    highlights: [
+      'Adaptive mobile drawer navigation with hamburger toggle on screens under 768px (md breakpoint).',
+      'Fluid vertical stacking and proportional scaling across all forms, dashboard widgets, and modal dialogs.',
+      'Touch-friendly mobile header with quick status indicators and seamless backdrop dismissals.',
+      'Horizontally scrollable table containers and responsive filter grids for smooth touch interactions.'
+    ]
+  },
+  {
     version: 'v2.4.0',
     date: 'September 21, 2026',
     tag: 'Compliance & Security',
@@ -91,6 +105,7 @@ export default function WhatsNewModal({ isOpen, onClose, user = null }) {
   // Filter tabs dynamically based on user role
   const filterTabs = [
     { id: 'all', label: 'All Updates' },
+    { id: 'mobile', label: 'Mobile & UX' },
     { id: 'compliance', label: 'Compliance' },
     { id: 'feature', label: 'Features' },
     { id: 'enhancement', label: 'Enhancements' }
@@ -105,23 +120,23 @@ export default function WhatsNewModal({ isOpen, onClose, user = null }) {
       <div className="glass-panel border border-gold/30 w-full max-w-2xl max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl flex flex-col relative animate-in fade-in zoom-in-95 duration-200">
         
         {/* Layer 1: Header Stack */}
-        <div className="px-6 py-5 border-b border-white/10 flex justify-between items-center bg-white/5 shrink-0">
+        <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-white/10 flex justify-between items-center bg-white/5 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gold/10 border border-gold/30 flex items-center justify-center text-gold shadow-md">
+            <div className="w-10 h-10 rounded-xl bg-gold/10 border border-gold/30 flex items-center justify-center text-gold shadow-md shrink-0">
               <svg className="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
               </svg>
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-black text-gold-gradient tracking-tight">
+                <h2 className="text-base sm:text-lg font-black text-gold-gradient tracking-tight">
                   What&apos;s New
                 </h2>
                 <span className="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full bg-gold/20 text-gold border border-gold/30">
                   Release Notes
                 </span>
               </div>
-              <p className="text-xs text-white/50 mt-0.5">
+              <p className="text-[11px] sm:text-xs text-white/50 mt-0.5 line-clamp-1 sm:line-clamp-none">
                 Latest updates, enhancements & compliance for Palayan City Youth Portal
               </p>
             </div>
@@ -129,7 +144,7 @@ export default function WhatsNewModal({ isOpen, onClose, user = null }) {
 
           <button
             onClick={handleClose}
-            className="text-white/60 hover:text-white rounded-full p-1.5 bg-white/5 hover:bg-white/10 transition-all cursor-pointer"
+            className="text-white/60 hover:text-white rounded-full p-1.5 bg-white/5 hover:bg-white/10 transition-all cursor-pointer shrink-0 ml-2"
             title="Close"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -139,7 +154,7 @@ export default function WhatsNewModal({ isOpen, onClose, user = null }) {
         </div>
 
         {/* Layer 2: Category Filters Stack */}
-        <div className="flex items-center gap-2 px-6 py-3 border-b border-white/10 bg-black/20 shrink-0 overflow-x-auto text-xs">
+        <div className="flex items-center gap-2 px-4 sm:px-6 py-3 border-b border-white/10 bg-black/20 shrink-0 overflow-x-auto text-xs">
           <span className="text-white/40 text-[11px] font-semibold uppercase tracking-wider mr-1">Filter:</span>
           {filterTabs.map(tab => (
             <button
@@ -157,7 +172,7 @@ export default function WhatsNewModal({ isOpen, onClose, user = null }) {
         </div>
 
         {/* Layer 3: Scrollable Updates Content Stack */}
-        <div className="overflow-y-auto flex-1 p-6 space-y-4">
+        <div className="overflow-y-auto flex-1 p-4 sm:p-6 space-y-4">
           {filteredUpdates.map((update, idx) => (
             <div
               key={idx}

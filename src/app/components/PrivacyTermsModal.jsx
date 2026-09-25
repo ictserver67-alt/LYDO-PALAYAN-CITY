@@ -19,25 +19,25 @@ export default function PrivacyTermsModal({ isOpen, onClose, initialTab = 'seal'
       <div className="glass-panel border border-gold/30 w-full max-w-3xl max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl flex flex-col relative animate-in fade-in zoom-in-95 duration-200">
         
         {/* Header */}
-        <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-white/5 shrink-0">
+        <div className="px-4 sm:px-6 py-4 border-b border-white/10 flex justify-between items-center bg-white/5 shrink-0">
           <div className="flex items-center gap-3">
             <img 
               src="/npc_seal.png" 
               alt="NPC Seal" 
-              className="w-8 h-12 object-contain drop-shadow-[0_0_8px_rgba(255,215,0,0.2)]" 
+              className="w-7 h-10 sm:w-8 sm:h-12 object-contain drop-shadow-[0_0_8px_rgba(255,215,0,0.2)] shrink-0" 
             />
             <div>
-              <h2 className="text-lg font-bold text-gold-gradient leading-tight">
+              <h2 className="text-base sm:text-lg font-bold text-gold-gradient leading-tight">
                 Data Privacy & Terms of Service
               </h2>
-              <p className="text-[11px] text-white/50">
+              <p className="text-[10px] sm:text-[11px] text-white/50">
                 LGU Palayan City • Local Youth Development Office (LYDO)
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-white/60 hover:text-white rounded-full p-1.5 bg-white/5 hover:bg-white/10 transition-all cursor-pointer"
+            className="text-white/60 hover:text-white rounded-full p-1.5 bg-white/5 hover:bg-white/10 transition-all cursor-pointer shrink-0 ml-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -46,16 +46,16 @@ export default function PrivacyTermsModal({ isOpen, onClose, initialTab = 'seal'
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex border-b border-white/10 bg-black/20 shrink-0 px-6">
+        <div className="flex border-b border-white/10 bg-black/20 shrink-0 px-3 sm:px-6 overflow-x-auto">
           <button
             onClick={() => setActiveTab('seal')}
-            className={`py-3 px-4 text-xs font-semibold flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
+            className={`py-3 px-3 sm:px-4 text-xs font-semibold flex items-center gap-2 border-b-2 transition-all cursor-pointer shrink-0 ${
               activeTab === 'seal'
                 ? 'border-gold text-gold bg-white/[0.03]'
                 : 'border-transparent text-white/60 hover:text-white hover:bg-white/[0.02]'
             }`}
           >
-            <svg className="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
             NPC Registration Seal
@@ -63,13 +63,13 @@ export default function PrivacyTermsModal({ isOpen, onClose, initialTab = 'seal'
 
           <button
             onClick={() => setActiveTab('privacy')}
-            className={`py-3 px-4 text-xs font-semibold flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
+            className={`py-3 px-3 sm:px-4 text-xs font-semibold flex items-center gap-2 border-b-2 transition-all cursor-pointer shrink-0 ${
               activeTab === 'privacy'
                 ? 'border-gold text-gold bg-white/[0.03]'
                 : 'border-transparent text-white/60 hover:text-white hover:bg-white/[0.02]'
             }`}
           >
-            <svg className="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
             Privacy Policy
@@ -77,13 +77,13 @@ export default function PrivacyTermsModal({ isOpen, onClose, initialTab = 'seal'
 
           <button
             onClick={() => setActiveTab('terms')}
-            className={`py-3 px-4 text-xs font-semibold flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
+            className={`py-3 px-3 sm:px-4 text-xs font-semibold flex items-center gap-2 border-b-2 transition-all cursor-pointer shrink-0 ${
               activeTab === 'terms'
                 ? 'border-gold text-gold bg-white/[0.03]'
                 : 'border-transparent text-white/60 hover:text-white hover:bg-white/[0.02]'
             }`}
           >
-            <svg className="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             Terms & Conditions
@@ -91,7 +91,7 @@ export default function PrivacyTermsModal({ isOpen, onClose, initialTab = 'seal'
         </div>
 
         {/* Content Area */}
-        <div className="overflow-y-auto flex-1 p-6 text-white/80 text-xs leading-relaxed space-y-4">
+        <div className="overflow-y-auto flex-1 p-4 sm:p-6 text-white/80 text-xs leading-relaxed space-y-4">
           
           {/* TAB 1: NPC SEAL */}
           {activeTab === 'seal' && (

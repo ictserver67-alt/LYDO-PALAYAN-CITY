@@ -50,12 +50,12 @@ export default function ScholarRegistrationModal({ isOpen, onClose, onOpenPrivac
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
-      <div className="glass-panel border border-gold/25 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="glass-panel border border-gold/25 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 my-auto max-h-[92vh] flex flex-col">
         {/* Header */}
-        <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/5">
+        <div className="p-4 sm:p-6 border-b border-white/10 flex justify-between items-center bg-white/5 shrink-0">
           <div>
-            <h2 className="text-xl font-bold text-gold-gradient font-sans">Register as Scholar</h2>
+            <h2 className="text-lg sm:text-xl font-bold text-gold-gradient font-sans">Register as Scholar</h2>
             <p className="text-xs text-white/50 font-sans">Create your student account to apply</p>
           </div>
           <button
@@ -69,7 +69,7 @@ export default function ScholarRegistrationModal({ isOpen, onClose, onOpenPrivac
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4 font-sans">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 flex flex-col gap-4 font-sans overflow-y-auto">
           {error && (
             <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-lg flex items-center gap-2">
               <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

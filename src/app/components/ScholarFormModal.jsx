@@ -179,9 +179,9 @@ export default function ScholarFormModal({ isOpen, onClose, application = null, 
     <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-[100] p-4 font-sans animate-in fade-in duration-200">
       <div className="glass-panel border border-gold/30 w-full max-w-2xl max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 flex flex-col">
         {/* Header */}
-        <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/5 shrink-0">
+        <div className="p-4 sm:p-6 border-b border-white/10 flex justify-between items-center bg-white/5 shrink-0">
           <div>
-            <h2 className="text-xl font-bold text-gold-gradient">
+            <h2 className="text-lg sm:text-xl font-bold text-gold-gradient">
               {isEditMode ? 'Correct Scholar Profile' : 'Encode New Scholar'}
             </h2>
             <p className="text-xs text-white/50">
@@ -194,7 +194,7 @@ export default function ScholarFormModal({ isOpen, onClose, application = null, 
         </div>
 
         {/* Form Body */}
-        <div className="overflow-y-auto flex-1 p-6">
+        <div className="overflow-y-auto flex-1 p-4 sm:p-6">
           {error && (
             <div className="p-3 mb-4 bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-lg">
               {error}

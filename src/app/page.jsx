@@ -60,8 +60,9 @@ export default function Page() {
     }
   }, []);
 
-  // Active Tab
+  // Active Tab & Mobile Drawer
   const [activeTab, setActiveTab] = useState('home');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Shared Data States
   const [analytics, setAnalytics] = useState(null);
@@ -887,8 +888,54 @@ export default function Page() {
   const isScholar = user.role === 'scholar';
 
   return (
-    <div className="min-h-screen flex bg-forest-dark text-white font-sans">
-      {/* Navigation Sidebar */}
+    <div className="min-h-screen flex bg-forest-dark text-white font-sans relative overflow-x-hidden">
+      {/* Mobile Sticky Navigation Header (Screens under 768px) */}
+      <header className="md:hidden fixed top-0 left-0 right-0 h-16 bg-forest-dark/95 backdrop-blur-md border-b border-gold/20 flex items-center justify-between px-4 z-30">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(true)}
+            className="p-2 rounded-xl bg-white/5 border border-gold/30 text-gold hover:bg-gold/15 active:scale-95 transition-all cursor-pointer shadow-sm"
+            aria-label="Open Navigation Menu"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <div className="flex items-center gap-2">
+            <img src="/logo_palayan.png" alt="Palayan Seal" className="w-8 h-8 object-contain" />
+            <div className="flex flex-col">
+              <span className="text-xs font-black text-gold-gradient leading-tight tracking-wide uppercase">Palayan Youth</span>
+              <span className="text-[9px] text-white/50 tracking-wider font-semibold uppercase truncate max-w-[130px]">
+                {activeTab.replace('-', ' ')}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {/* What's New Mobile Pill */}
+          <button
+            type="button"
+            onClick={() => setIsWhatsNewOpen(true)}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gold/15 border border-gold/30 text-gold text-[10px] font-bold cursor-pointer hover:bg-gold/25 transition-all"
+            title="What's New"
+          >
+            <svg className="w-3 h-3 animate-pulse text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+            </svg>
+            <span>Updates</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          </button>
+
+          {/* User Initials Avatar */}
+          <div className="w-8 h-8 rounded-full bg-white/10 border border-gold/30 flex items-center justify-center text-gold text-xs font-bold uppercase shadow-sm">
+            {user.username.slice(0, 2)}
+          </div>
+        </div>
+      </header>
+
+      {/* Navigation Sidebar Drawer */}
       <Sidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -896,10 +943,12 @@ export default function Page() {
         onLogout={handleLogout}
         onOpenPrivacyModal={(tab) => setPrivacyModalState({ isOpen: true, tab: tab || 'seal' })}
         onOpenWhatsNew={() => setIsWhatsNewOpen(true)}
+        mobileOpen={mobileMenuOpen}
+        onCloseMobile={() => setMobileMenuOpen(false)}
       />
 
       {/* Main Workspace Panels */}
-      <main className="flex-1 ml-64 p-8 min-h-screen overflow-y-auto flex flex-col gap-8">
+      <main className="flex-1 w-full max-w-full md:ml-64 p-4 sm:p-6 md:p-8 min-h-screen overflow-y-auto overflow-x-hidden flex flex-col gap-6 md:gap-8 pt-20 md:pt-8">
         
         {activeTab === 'scholar-list' && (
           <div className="animate-in fade-in duration-300">
@@ -1657,19 +1706,20 @@ export default function Page() {
             setConcernMsg({ text: '', isError: false });
             setIsConcernOpen(true);
           }}
-          className="fixed bottom-6 right-6 px-4 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full shadow-lg border border-emerald-500/30 flex items-center gap-2 font-bold text-xs transition-all hover:scale-105 glow-btn z-50 cursor-pointer"
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 px-3.5 py-2.5 sm:px-4 sm:py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full shadow-lg border border-emerald-500/30 flex items-center gap-2 font-bold text-xs transition-all hover:scale-105 glow-btn z-40 cursor-pointer"
         >
-          <svg className="w-4.5 h-4.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
-          Report Concern
+          <span className="hidden sm:inline">Report Concern</span>
+          <span className="sm:hidden">Concern</span>
         </button>
       )}
 
       {/* Report Concern Modal */}
       {isConcernOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] animate-in fade-in duration-200">
-          <div className="w-full max-w-md glass-panel border border-gold/25 rounded-2xl overflow-hidden shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 p-6 flex flex-col gap-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-in fade-in duration-200 overflow-y-auto">
+          <div className="w-full max-w-md glass-panel border border-gold/25 rounded-2xl overflow-hidden shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 p-5 sm:p-6 flex flex-col gap-4 my-auto max-h-[90vh]">
             <div className="flex justify-between items-center border-b border-white/10 pb-3">
               <h3 className="text-lg font-bold text-gold-gradient">Report a Concern</h3>
               <button

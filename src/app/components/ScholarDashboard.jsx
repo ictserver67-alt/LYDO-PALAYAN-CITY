@@ -212,10 +212,10 @@ export default function ScholarDashboard({ user }) {
     return (
       <div className="flex flex-col gap-6 w-full">
         {/* Status Dashboard Banner */}
-        <div className="glass-panel rounded-2xl p-8 border border-gold/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="glass-panel rounded-2xl p-5 sm:p-8 border border-gold/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="flex flex-col gap-3">
             <span className="text-white/50 text-xs font-semibold uppercase tracking-wider">Application Status</span>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               <span className={`px-4 py-1.5 rounded-full border text-sm font-bold uppercase tracking-wider ${statusColors[app.status]}`}>
                 {app.status}
               </span>
@@ -228,22 +228,22 @@ export default function ScholarDashboard({ user }) {
             <p className="text-xs text-white/50">Submitted on: {new Date(app.date_filed).toLocaleDateString('en-US', { timeZone: 'Asia/Manila' })}</p>
           </div>
 
-          <div className="flex flex-col items-end gap-2">
+          <div className="flex flex-col items-start md:items-end gap-2">
             <div className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg">
               <svg className="w-4 h-4 text-white/40 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
               <span className="text-[10px] text-white/40 font-semibold uppercase tracking-wider">Submission Locked</span>
             </div>
-            <p className="text-[10px] text-white/30 text-right max-w-[180px]">Application is under review. Contact the admin for changes.</p>
+            <p className="text-[10px] text-white/30 text-left md:text-right max-w-sm">Application is under review. Contact the admin for changes.</p>
           </div>
         </div>
 
         {/* Evaluation Scores (If Graded) */}
         {(app.status === 'Approved' || app.status === 'Rejected' || app.score_total > 0) && (
-          <div className="glass-panel border-l-4 border-gold rounded-xl p-6 flex flex-col gap-4">
+          <div className="glass-panel border-l-4 border-gold rounded-xl p-4 sm:p-6 flex flex-col gap-4">
             <h3 className="text-lg font-bold text-gold-gradient">Official Assessment Scoreboard</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
               <div className="bg-white/5 border border-white/10 rounded-lg p-3 text-center">
                 <span className="text-white/50 text-[10px] uppercase font-bold tracking-wider">Academic (30%)</span>
                 <p className="text-xl font-bold mt-1">{app.score_academic} pts</p>
@@ -289,9 +289,9 @@ export default function ScholarDashboard({ user }) {
         {/* Info Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Submission Details */}
-          <div className="glass-panel rounded-xl p-6 flex flex-col gap-4">
+          <div className="glass-panel rounded-xl p-4 sm:p-6 flex flex-col gap-4">
             <h3 className="text-md font-bold text-gold border-b border-white/10 pb-2">Academic & School Context</h3>
-            <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-white/45 text-xs">School Enrolled</p>
                 <p className="font-semibold text-white mt-1 truncate">{app.school_enrolled}</p>
@@ -312,7 +312,7 @@ export default function ScholarDashboard({ user }) {
           </div>
 
           {/* Documentary Requirements Links */}
-          <div className="glass-panel rounded-xl p-6 flex flex-col gap-4">
+          <div className="glass-panel rounded-xl p-4 sm:p-6 flex flex-col gap-4">
             <h3 className="text-md font-bold text-gold border-b border-white/10 pb-2">Submitted Documentary Requirements</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {app.letter_to_mayor_url && (
@@ -360,7 +360,7 @@ export default function ScholarDashboard({ user }) {
 
   // WIZARD FORM VIEW (If not submitted yet, or editing)
   return (
-    <div className="glass-panel border border-gold/15 rounded-2xl w-full flex flex-col p-6 md:p-8 gap-6 relative">
+    <div className="glass-panel border border-gold/15 rounded-2xl w-full flex flex-col p-4 sm:p-6 md:p-8 gap-6 relative">
       {/* Form Title */}
       <div className="border-b border-white/10 pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>

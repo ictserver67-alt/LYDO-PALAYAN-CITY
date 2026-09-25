@@ -214,9 +214,9 @@ export default function ScholarList({ user }) {
   return (
     <div className="flex flex-col gap-6 w-full font-sans">
       {/* Header & Main Actions */}
-      <div className="glass-panel rounded-xl p-6 border border-gold/15 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="glass-panel rounded-xl p-4 sm:p-6 border border-gold/15 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-gold-gradient">Scholar List & Directory</h2>
+          <h2 className="text-lg sm:text-xl font-bold text-gold-gradient">Scholar List & Directory</h2>
           <p className="text-xs text-white/50 mt-1">
             {(user?.role === 'encoder' || user?.role === 'admin') 
               ? 'Manage scholar profiles, encode physical applications, and edit details' 
@@ -225,24 +225,24 @@ export default function ScholarList({ user }) {
         </div>
 
         {(user?.role === 'encoder' || user?.role === 'admin') && (
-          <div className="flex gap-2.5 shrink-0 flex-wrap">
+          <div className="flex gap-2 sm:gap-2.5 shrink-0 flex-wrap w-full md:w-auto">
             <button 
               onClick={() => setIsQrModalOpen(true)}
-              className="px-4 py-3 border border-gold/30 hover:bg-gold/10 text-gold font-bold uppercase text-[10px] tracking-wider rounded-lg flex items-center gap-1.5 transition-all cursor-pointer"
+              className="flex-1 sm:flex-initial justify-center px-3 sm:px-4 py-2.5 sm:py-3 border border-gold/30 hover:bg-gold/10 text-gold font-bold uppercase text-[10px] tracking-wider rounded-lg flex items-center gap-1.5 transition-all cursor-pointer"
               title="Show Registration QR Code for scholars"
             >
-              <svg className="w-4.5 h-4.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+              <svg className="w-4.5 h-4.5 text-gold shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125v3.75c0 .621-.504 1.125-1.125 1.125h-3.75A1.125 1.125 0 013.75 8.625v-3.75zM3.75 14.625c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125v3.75c0 .621-.504 1.125-1.125 1.125h-3.75a1.125 1.125 0 01-1.125-1.125v-3.75zM14.625 3.75c-.621 0-1.125.504-1.125 1.125v3.75c0 .621.504 1.125 1.125 1.125h3.75c.621 0 1.125-.504 1.125-1.125v-3.75c0-.621-.504-1.125-1.125-1.125h-3.75z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M14.625 14.625h1.5m1.5 0h1.5M14.625 17.625h1.5m1.5 0h1.5M14.625 20.25h1.5m1.5 0h1.5" />
               </svg>
-              Registration QR Code
+              <span>QR Code</span>
             </button>
             <button 
               onClick={handleOpenEncode}
-              className="px-5 py-3 bg-gold-gradient text-forest-dark font-black tracking-wider uppercase text-xs rounded-lg flex items-center gap-2 hover:shadow-lg transition-all cursor-pointer glow-btn"
+              className="flex-1 sm:flex-initial justify-center px-4 sm:px-5 py-2.5 sm:py-3 bg-gold-gradient text-forest-dark font-black tracking-wider uppercase text-xs rounded-lg flex items-center gap-2 hover:shadow-lg transition-all cursor-pointer glow-btn"
             >
-              <svg className="w-4 h-4 text-forest-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" /></svg>
-              Encode New Scholar
+              <svg className="w-4 h-4 text-forest-dark shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" /></svg>
+              <span>Encode Scholar</span>
             </button>
           </div>
         )}
@@ -250,7 +250,7 @@ export default function ScholarList({ user }) {
 
       {/* Generated Application No Notification */}
       {generatedAfs && (
-        <div className="p-6 bg-gold/10 border border-gold/30 rounded-xl text-center flex flex-col gap-2 items-center relative animate-in zoom-in-95">
+        <div className="p-4 sm:p-6 bg-gold/10 border border-gold/30 rounded-xl text-center flex flex-col gap-2 items-center relative animate-in zoom-in-95">
           <button 
             onClick={() => setGeneratedAfs(null)} 
             className="absolute top-4 right-4 text-white/50 hover:text-white transition-all cursor-pointer"
@@ -259,13 +259,13 @@ export default function ScholarList({ user }) {
           </button>
           <p className="text-xs text-white/60 uppercase tracking-widest font-semibold">Scholar Encoded Successfully!</p>
           <p className="text-[10px] text-white/40">Generated Application Number:</p>
-          <h1 className="text-3xl font-black text-gold tracking-tight">{generatedAfs}</h1>
+          <h1 className="text-2xl sm:text-3xl font-black text-gold tracking-tight">{generatedAfs}</h1>
           <p className="text-xs text-white/50 mt-1">Please write this number down on the physical application form.</p>
         </div>
       )}
 
       {/* Analytics Bento Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
         {/* Total Scholars */}
         <div className="glass-panel p-4 rounded-xl border border-white/5 flex flex-col gap-1.5 relative overflow-hidden group hover:border-gold/20 transition-all duration-300">
           <span className="text-[10px] text-white/40 uppercase font-semibold tracking-wider">Total Scholars</span>
@@ -322,9 +322,9 @@ export default function ScholarList({ user }) {
       </div>
 
       {/* Filters Box */}
-      <div className="glass-panel rounded-xl p-5 border border-gold/15 flex flex-wrap gap-4 items-center">
+      <div className="glass-panel rounded-xl p-4 sm:p-5 border border-gold/15 flex flex-col md:flex-row flex-wrap gap-3 sm:gap-4 items-stretch md:items-center">
         {/* Search */}
-        <div className="flex flex-col gap-1 flex-1 min-w-[200px]">
+        <div className="flex flex-col gap-1 w-full md:flex-1 md:min-w-[200px]">
           <span className="text-[10px] text-white/40 uppercase font-semibold">Search Scholar</span>
           <div className="relative">
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -335,7 +335,7 @@ export default function ScholarList({ user }) {
               placeholder="Search by name, AFS no., school, barangay..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="input-field text-xs py-2 pl-8 pr-3 w-full"
+              className="input-field text-xs py-2 pl-8 pr-8 w-full"
             />
             {searchQuery && (
               <button
@@ -349,12 +349,12 @@ export default function ScholarList({ user }) {
         </div>
 
         {/* Barangay Filter */}
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 w-full sm:w-auto">
           <span className="text-[10px] text-white/40 uppercase font-semibold">Filter by Barangay</span>
           <select
             value={filterBarangay}
             onChange={e => setFilterBarangay(e.target.value)}
-            className="input-field text-xs py-2 px-3 min-w-[160px] cursor-pointer"
+            className="input-field text-xs py-2 px-3 w-full sm:min-w-[160px] cursor-pointer"
           >
             <option value="All" className="bg-forest-dark text-white">All Barangays</option>
             {BARANGAYS.map(b => (
@@ -364,12 +364,12 @@ export default function ScholarList({ user }) {
         </div>
 
         {/* Status Filter */}
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 w-full sm:w-auto">
           <span className="text-[10px] text-white/40 uppercase font-semibold">Filter by Status</span>
           <select
             value={filterStatus}
             onChange={e => setFilterStatus(e.target.value)}
-            className="input-field text-xs py-2 px-3 min-w-[160px] cursor-pointer"
+            className="input-field text-xs py-2 px-3 w-full sm:min-w-[160px] cursor-pointer"
           >
             <option value="All" className="bg-forest-dark text-white">All Statuses</option>
             <option value="Pending" className="bg-forest-dark text-white">For Review (Pending)</option>
@@ -379,12 +379,12 @@ export default function ScholarList({ user }) {
         </div>
 
         {/* Rows Per Page */}
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 w-full sm:w-auto">
           <span className="text-[10px] text-white/40 uppercase font-semibold">Rows Per Page</span>
           <select
             value={limit}
             onChange={e => setLimit(Number(e.target.value))}
-            className="input-field text-xs py-2 px-3 min-w-[110px] cursor-pointer font-semibold text-gold"
+            className="input-field text-xs py-2 px-3 w-full sm:min-w-[110px] cursor-pointer font-semibold text-gold"
           >
             <option value={10} className="bg-forest-dark text-white">10 per page</option>
             <option value={25} className="bg-forest-dark text-white">25 per page</option>
@@ -392,8 +392,9 @@ export default function ScholarList({ user }) {
           </select>
         </div>
 
-        {/* Refresh Button */}
-        <div className="flex items-end self-end h-[38px]">
+        {/* Action Buttons */}
+        <div className="flex items-center gap-2 pt-2 md:pt-0 self-start md:self-end md:h-[38px] flex-wrap">
+          {/* Refresh Button */}
           <button
             onClick={fetchApplications}
             className="p-2 rounded-lg border border-gold/25 text-gold hover:bg-gold/10 transition-all cursor-pointer"
@@ -403,33 +404,30 @@ export default function ScholarList({ user }) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H18.2" />
             </svg>
           </button>
-        </div>
 
-        {/* Export Button */}
-        <div className="flex items-end self-end h-[38px]">
+          {/* Export Button */}
           <button
             onClick={() => setIsExportModalOpen(true)}
-            className="px-4 py-2 rounded-lg bg-gold-gradient text-forest-dark font-black tracking-wider uppercase text-[10px] flex items-center gap-1.5 hover:shadow-lg transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
-            title="Export database to CSV"
+            className="px-3.5 sm:px-4 py-2 rounded-lg bg-gold-gradient text-forest-dark font-black tracking-wider uppercase text-[10px] flex items-center gap-1.5 hover:shadow-lg transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+            title="Export database to Excel"
           >
             <svg className="w-4 h-4 text-forest-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
             Export
           </button>
-        </div>
 
-        {/* Reset Attendance (Admin Only) */}
-        {user?.role === 'admin' && (
-          <div className="flex items-end self-end h-[38px]">
+          {/* Reset Attendance (Admin Only) */}
+          {user?.role === 'admin' && (
             <button
               onClick={handleResetAttendance}
-              className="px-4 py-2 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-300 font-black tracking-wider uppercase text-[10px] flex items-center gap-1.5 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] shrink-0"
+              className="px-3.5 sm:px-4 py-2 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-300 font-black tracking-wider uppercase text-[10px] flex items-center gap-1.5 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] shrink-0"
               title="Reset all scholar attendance records to unchecked"
             >
               <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-              Reset Attendance
+              <span className="hidden sm:inline">Reset Attendance</span>
+              <span className="sm:hidden">Reset Att.</span>
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Directory Table */}
