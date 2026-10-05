@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { AnalyticsGhostView } from './SkeletonLoaders';
 
 export default function AnalyticsTab() {
   const [loading, setLoading] = useState(true);
@@ -36,12 +37,7 @@ export default function AnalyticsTab() {
   };
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 gap-4">
-        <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-white/60 text-sm font-semibold">Compiling analytics reports...</p>
-      </div>
-    );
+    return <AnalyticsGhostView />;
   }
 
   if (error) {

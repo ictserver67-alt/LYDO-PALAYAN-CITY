@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { DocumentTableSkeleton } from './SkeletonLoaders';
 
-export default function DocumentTable({ documents, title, onRefresh, isAdmin }) {
+export default function DocumentTable({ documents, title, onRefresh, isAdmin, loading = false }) {
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
 
@@ -119,10 +120,13 @@ export default function DocumentTable({ documents, title, onRefresh, isAdmin }) 
       </div>
 
       {/* Table Container */}
-      <div className="overflow-x-auto w-full border border-white/5 rounded-lg">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-white/5 border-b border-white/10 text-gold/80 text-xs font-semibold uppercase tracking-wider">
+      {loading ? (
+        <DocumentTableSkeleton rows={5} isAdmin={isAdmin} />
+      ) : (
+        <div className="overflow-x-auto w-full border border-white/5 rounded-lg">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-white/5 border-b border-white/10 text-gold/80 text-xs font-semibold uppercase tracking-wider">
               <th className="py-4 px-6">Document Name</th>
               <th className="py-4 px-6">Category</th>
               <th className="py-4 px-6">Uploaded By</th>
@@ -205,6 +209,7 @@ export default function DocumentTable({ documents, title, onRefresh, isAdmin }) 
           </tbody>
         </table>
       </div>
+      )}
 
       {/* Custom Confirm Delete Modal */}
       {deleteConfirmOpen && deletingDoc && (

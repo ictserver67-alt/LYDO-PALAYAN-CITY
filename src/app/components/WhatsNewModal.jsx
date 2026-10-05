@@ -4,6 +4,20 @@ import React, { useState, useEffect } from 'react';
 
 export const UPDATES_DATA = [
   {
+    version: 'v2.6.0',
+    date: 'October 5, 2026',
+    tag: 'Performance & UX',
+    tagColor: 'bg-gold/15 text-gold border-gold/30',
+    title: 'Ghost & Skeleton Loading UI Architecture',
+    description: 'Introduced fluid shimmer skeleton loaders across all primary portals and data tables, eliminating layout shifts and providing instant visual feedback.',
+    highlights: [
+      'Gateway & Session Skeleton: Replaced blank loading screens with a Palayan City gold-shimmer gateway skeleton during session validation.',
+      'Scholar Directory Ghost Table: Renders exact-dimension skeleton rows for application number, applicant name, barangay, and status to eliminate Cumulative Layout Shift (CLS).',
+      'Analytics & Trends Skeletons: Dynamic KPI cards, progress bars, and reporting trend placeholders while data aggregates compile.',
+      'Scholar Applicant Dashboard Skeleton: Real-time placeholder layout matching official assessment scorecards and verified documents checklist.'
+    ]
+  },
+  {
     version: 'v2.5.0',
     date: 'September 25, 2026',
     tag: 'Mobile & UX',

@@ -11,6 +11,7 @@ import ScholarList from './components/ScholarList';
 import AnalyticsTab from './components/AnalyticsTab';
 import PrivacyTermsModal from './components/PrivacyTermsModal';
 import WhatsNewModal from './components/WhatsNewModal';
+import { GatewayGhostLoading, KpiCardsSkeleton } from './components/SkeletonLoaders';
 import { BARANGAYS, LYDC_CENTERS } from './api/_utils/constants';
 
 export default function Page() {
@@ -595,15 +596,7 @@ export default function Page() {
 
   // 8. RENDER SCREEN OR GATEWAY
   if (!sessionChecked) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-forest-gradient gap-4">
-        <svg className="animate-spin h-10 w-10 text-gold" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-        </svg>
-        <span className="text-white/60 text-sm font-sans">Connecting to security system...</span>
-      </div>
-    );
+    return <GatewayGhostLoading />;
   }
 
   // GATEWAY & LOGIN RENDER
@@ -992,7 +985,7 @@ export default function Page() {
             </div>
 
             {/* KPI Cards (Admins see real aggregates, SKs see directory stats) */}
-            {isAdmin && analytics && <KpiCards data={analytics} />}
+            {isAdmin && (analytics ? <KpiCards data={analytics} /> : <KpiCardsSkeleton />)}
 
             {/* Split layout: Upload Form & Documents Grid */}
             <div className="flex flex-col xl:flex-row gap-8 items-start">
@@ -1110,6 +1103,7 @@ export default function Page() {
                   title={`Folder: ${selectedEntity}`}
                   onRefresh={() => fetchDocuments(selectedEntity)}
                   isAdmin={isAdmin}
+                  loading={dataLoading}
                 />
               </div>
             </div>
